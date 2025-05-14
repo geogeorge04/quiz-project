@@ -35,24 +35,18 @@ const App: React.FC = () => {
   };
 
   return (
-    <AppContainer>
-      <Title>Interactive Quiz Challenge</Title>
-      <AppContent>
-        <Routes>
-          <Route path="/" element={<Login onStart={handleStartQuiz} />} />
-          <Route path="/quiz" element={<Quiz />} />
-        </Routes>
-      </AppContent>
-    </AppContainer>
-  );
-};
-
-const AppWrapper = () => {
-  return (
     <Router>
-      <App />
+      <AppContainer>
+        <Title>Interactive Quiz Challenge</Title>
+        <AppContent>
+          <Routes>
+            <Route path="/" element={<Login onStart={handleStartQuiz} />} />
+            <Route path="/quiz" element={<Quiz />} />
+          </Routes>
+        </AppContent>
+      </AppContainer>
     </Router>
   );
 };
 
-export default AppWrapper;
+export default App;
