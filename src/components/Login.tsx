@@ -73,6 +73,7 @@ interface FormErrors {
   name?: string;
   email?: string;
   contact?: string;
+  submit?: string;
 }
 
 const Login: React.FC<LoginProps> = ({ onStart }) => {
