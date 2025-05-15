@@ -11,36 +11,42 @@ const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   padding: 1rem;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   
-  @media (min-width: 768px) {
-    padding: 2rem;
+  @media (max-width: 768px) {
+    padding: 0.5rem;
   }
 `;
 
 const Title = styled.h1`
   color: #2C3E50;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;
   text-align: center;
-  font-size: 1.5rem;
+  font-size: 2rem;
   padding: 0 1rem;
   word-wrap: break-word;
   font-weight: 600;
   
-  @media (min-width: 768px) {
-    font-size: 2rem;
-    margin-bottom: 2rem;
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
   }
 `;
 
 const AppContent = styled.div`
   width: 100%;
   max-width: 800px;
-  padding: 0 0.5rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 4rem);
   
-  @media (min-width: 768px) {
-    padding: 0;
+  @media (max-width: 768px) {
+    min-height: calc(100vh - 2rem);
   }
 `;
 
@@ -48,10 +54,17 @@ const ErrorMessage = styled.div`
   color: #dc3545;
   text-align: center;
   padding: 1rem;
-  margin-bottom: 1rem;
+  margin: 1rem 0;
   background: #fff;
-  border-radius: 4px;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  
+  @media (max-width: 768px) {
+    margin: 0.5rem 0;
+    padding: 0.8rem;
+  }
 `;
 
 // Separate component for the routes to use navigation

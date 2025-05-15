@@ -2,16 +2,46 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 const LoginContainer = styled.div`
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto;
   padding: 2rem;
-  background: white;
+  background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  
+  @media (max-width: 768px) {
+    margin: 1rem auto;
+    padding: 1.5rem;
+    width: 90%;
+  }
+
+  @media (max-height: 600px) {
+    margin: 0.5rem auto;
+    padding: 1rem;
+  }
+`;
+
+const Title = styled.h1`
+  color: #2C3E50;
+  text-align: center;
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  
+  @media (max-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 const FormGroup = styled.div`
@@ -25,16 +55,20 @@ const Label = styled.label`
   font-weight: 500;
 `;
 
-const Input = styled.input<{ hasError?: boolean }>`
-  padding: 0.75rem;
-  border: 1px solid ${props => props.hasError ? '#dc3545' : '#dee2e6'};
-  border-radius: 4px;
+const Input = styled.input`
+  padding: 0.8rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
   font-size: 1rem;
+  transition: border-color 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: ${props => props.hasError ? '#dc3545' : '#4CAF50'};
-    box-shadow: 0 0 0 2px ${props => props.hasError ? 'rgba(220, 53, 69, 0.2)' : 'rgba(76, 175, 80, 0.2)'};
+    border-color: #4CAF50;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.6rem;
   }
 `;
 
@@ -43,20 +77,27 @@ const Button = styled.button`
   background: #4CAF50;
   color: white;
   border: none;
-  border-radius: 4px;
-  font-size: 1rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
+  margin-top: 1rem;
   
   &:hover {
     background: #45a049;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
   }
   
   &:disabled {
     background: #cccccc;
     cursor: not-allowed;
     transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 0.8rem;
+    font-size: 1rem;
   }
 `;
 
@@ -156,6 +197,7 @@ const Login: React.FC<LoginProps> = ({ onStart }) => {
 
   return (
     <LoginContainer>
+      <Title>Start Quiz</Title>
       <Form onSubmit={handleSubmit}>
         <FormGroup>
           <Label htmlFor="name">Name</Label>

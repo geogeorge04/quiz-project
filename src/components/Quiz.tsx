@@ -5,48 +5,53 @@ import { questions } from '../data/questions';
 import { useNavigate } from 'react-router-dom';
 
 const QuizContainer = styled.div`
-  max-width: 800px;
   width: 100%;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: 2rem;
   background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   
-  @media (min-width: 768px) {
-    padding: 2rem;
+  @media (max-width: 768px) {
+    padding: 1rem;
+    margin: 0.5rem auto;
+    width: 90%;
   }
 `;
 
 const QuestionText = styled.h2`
-  color: #000000;
-  margin-bottom: 1.5rem;
-  font-size: 1.2rem;
+  color: #2C3E50;
+  margin-bottom: 2rem;
+  font-size: 1.5rem;
   word-wrap: break-word;
   font-weight: bold;
   background: #f8f9fa;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   border: 1px solid #e9ecef;
   
-  @media (min-width: 768px) {
-    font-size: 1.5rem;
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
   }
 `;
 
 const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   
-  @media (min-width: 768px) {
-    gap: 1rem;
+  @media (max-width: 768px) {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
   }
 `;
 
 const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
-  padding: 1rem;
+  padding: 1.2rem;
   border: 2px solid ${props => {
     if (props.selected && props.correct) return '#4CAF50';
     if (props.selected) return '#d32f2f';
@@ -60,18 +65,18 @@ const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
   }};
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1rem;
+  font-size: 1.1rem;
   word-wrap: break-word;
   white-space: pre-wrap;
   text-align: left;
   min-height: 44px;
-  color: #000000;
+  color: #2C3E50;
   font-weight: 500;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   
-  @media (min-width: 768px) {
+  @media (max-width: 768px) {
     padding: 1rem;
-    font-size: 1.1rem;
+    font-size: 1rem;
   }
 
   &:hover {
@@ -80,7 +85,7 @@ const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
       if (props.selected) return '#FFEBEE';
       return '#f8f9fa';
     }};
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   }
 
@@ -93,14 +98,15 @@ const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 8px;
-  background: #ddd;
-  border-radius: 5px;
-  margin-bottom: 1.5rem;
+  height: 10px;
+  background: #e9ecef;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  overflow: hidden;
   
-  @media (min-width: 768px) {
-    height: 10px;
-    margin-bottom: 2rem;
+  @media (max-width: 768px) {
+    height: 8px;
+    margin-bottom: 1.5rem;
   }
 `;
 
@@ -108,76 +114,88 @@ const Progress = styled.div<{ width: number }>`
   width: ${props => props.width}%;
   height: 100%;
   background: #4CAF50;
-  border-radius: 5px;
+  border-radius: 8px;
   transition: width 0.3s ease;
 `;
 
 const Message = styled.p<{ isError?: boolean }>`
   color: ${props => props.isError ? '#d32f2f' : '#4CAF50'};
-  margin: 1rem 0;
+  margin: 1.5rem 0;
   font-weight: bold;
   text-align: center;
-  font-size: 1rem;
+  font-size: 1.1rem;
   word-wrap: break-word;
   background: ${props => props.isError ? '#FFEBEE' : '#E8F5E9'};
-  padding: 1rem;
+  padding: 1.2rem;
   border-radius: 8px;
   border: 1px solid ${props => props.isError ? '#ffcdd2' : '#c8e6c9'};
   
-  @media (min-width: 768px) {
-    font-size: 1.1rem;
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    margin: 1rem 0;
+    padding: 1rem;
   }
 `;
 
 const NextButton = styled.button`
-  padding: 1rem 1.5rem;
+  padding: 1.2rem 2rem;
   background: #4CAF50;
   color: white;
   border: none;
   border-radius: 8px;
-  cursor: pointer;
-  margin-top: 1rem;
-  width: 100%;
-  font-size: 1.1rem;
-  transition: all 0.3s ease;
-  min-height: 44px;
+  font-size: 1.2rem;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-top: 1rem;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 
-  @media (min-width: 768px) {
-    padding: 1rem 2rem;
-    font-size: 1.2rem;
+  @media (max-width: 768px) {
+    padding: 1rem;
+    font-size: 1.1rem;
   }
 
   &:hover {
     background: #45a049;
-    transform: translateY(-1px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 6px rgba(0,0,0,0.15);
   }
 
   &:active {
     transform: translateY(0);
   }
+
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+  }
 `;
 
 const LoadingContainer = styled.div`
   text-align: center;
-  padding: 1rem;
+  padding: 2rem;
   background: white;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  margin: 2rem auto;
   
-  @media (min-width: 768px) {
-    padding: 2rem;
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+    margin: 1rem auto;
+    width: 90%;
   }
 
   h2 {
-    font-size: 1.2rem;
-    color: #000000;
+    font-size: 1.5rem;
+    color: #2C3E50;
     font-weight: bold;
     
-    @media (min-width: 768px) {
-      font-size: 1.5rem;
+    @media (max-width: 768px) {
+      font-size: 1.2rem;
     }
   }
 `;

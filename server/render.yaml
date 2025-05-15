@@ -2,8 +2,11 @@ services:
   - type: web
     name: quiz-app-backend
     env: node
-    buildCommand: cd server && npm install
-    startCommand: cd server && node index.js
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_ENV
-        value: production 
+        value: production
+      - key: MONGODB_URI
+        sync: false # This will be set manually in Render.com dashboard 

@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs');
-const path = require('path');
 const config = require('./config');
+const { connectToDatabase, getDb } = require('./db');
 
 const app = express();
 
@@ -19,30 +18,6 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
 });
-
-// Data file path
-const dataFile = path.join(config.dataDir, 'users.json');
-console.log('Data file path:', dataFile);
-
-// Ensure data file exists with proper permissions
-try {
-  if (!fs.existsSync(dataFile)) {
-    console.log('Creating users.json file...');
-    fs.writeFileSync(dataFile, JSON.stringify([], null, 2), { mode: 0o644 });
-    console.log('Initialized empty users.json file');
-  } else {
-    // Verify file is readable and writable
-    fs.accessSync(dataFile, fs.constants.R_OK | fs.constants.W_OK);
-    console.log('Users.json file exists and is accessible');
-    // Log current contents
-    const currentData = fs.readFileSync(dataFile, 'utf8');
-    console.log('Current data in file:', currentData);
-  }
-} catch (error) {
-  console.error('Error with data file:', error);
-  console.error('Failed to access or create data file. Please check permissions and paths.');
-  process.exit(1);
-}
 
 // Root route
 app.get('/', (req, res) => {
@@ -66,12 +41,10 @@ app.get('/health', (req, res) => {
 });
 
 // Get all users
-app.get('/api/users', (req, res) => {
+app.get('/api/users', async (req, res) => {
   try {
-    console.log('Reading from:', dataFile);
-    const data = fs.readFileSync(dataFile, 'utf8');
-    console.log('Raw data:', data);
-    const users = JSON.parse(data);
+    const db = getDb();
+    const users = await db.collection('users').find().toArray();
     console.log(`Retrieved ${users.length} users`);
     res.json(users);
   } catch (error) {
@@ -81,20 +54,16 @@ app.get('/api/users', (req, res) => {
 });
 
 // Add new user
-app.post('/api/users', (req, res) => {
+app.post('/api/users', async (req, res) => {
   try {
     console.log('Received user data:', req.body);
-    const data = fs.readFileSync(dataFile, 'utf8');
-    console.log('Current data:', data);
-    const users = JSON.parse(data);
+    const db = getDb();
     const newUser = {
       ...req.body,
       timestamp: new Date().toISOString()
     };
-    users.push(newUser);
-    fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
-    console.log('User saved successfully');
-    console.log('Updated data:', fs.readFileSync(dataFile, 'utf8'));
+    const result = await db.collection('users').insertOne(newUser);
+    console.log('User saved successfully:', result.insertedId);
     res.json(newUser);
   } catch (error) {
     console.error('Error saving user:', error);
@@ -117,25 +86,33 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-const server = app.listen(config.port, () => {
-  console.log(`Server running at http://localhost:${config.port}`);
-  console.log('Environment:', process.env.NODE_ENV);
-  console.log('Allowed origins:', config.allowedOrigins);
-});
+// Connect to MongoDB before starting the server
+connectToDatabase()
+  .then(() => {
+    const server = app.listen(config.port, () => {
+      console.log(`Server running at http://localhost:${config.port}`);
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Allowed origins:', config.allowedOrigins);
+    });
 
-// Handle graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-});
+    // Handle graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('SIGTERM received. Shutting down gracefully...');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
 
-process.on('SIGINT', () => {
-  console.log('SIGINT received. Shutting down gracefully...');
-  server.close(() => {
-    console.log('Server closed');
-    process.exit(0);
-  });
-}); 
+    process.on('SIGINT', () => {
+      console.log('SIGINT received. Shutting down gracefully...');
+      server.close(() => {
+        console.log('Server closed');
+        process.exit(0);
+      });
+    });
+  })
+  .catch(error => {
+    console.error('Failed to connect to MongoDB:', error);
+    process.exit(1);
+  }); 
