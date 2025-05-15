@@ -1,0 +1,1 @@
+mongodb+srv://geogeorge04:2014@quiz.rs7jx0m.mongodb.net/quiz-app?retryWrites=true&w=majority&tls=true&authSource=admin 

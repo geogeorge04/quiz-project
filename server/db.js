@@ -3,8 +3,20 @@ const { MongoClient } = require('mongodb');
 // Use environment variable for MongoDB connection
 const uri = process.env.MONGODB_URI || "mongodb+srv://geogeorge04:<password>@quiz.rs7jx0m.mongodb.net/?retryWrites=true&w=majority";
 
-// Create MongoDB client
-const client = new MongoClient(uri);
+// Create MongoDB client with TLS options
+const client = new MongoClient(uri, {
+    ssl: true,
+    tls: true,
+    tlsAllowInvalidCertificates: false,
+    tlsInsecure: false,
+    minPoolSize: 1,
+    maxPoolSize: 10,
+    serverApi: {
+        version: '1',
+        strict: true,
+        deprecationErrors: true
+    }
+});
 
 let db;
 
