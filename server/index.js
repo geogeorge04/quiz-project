@@ -22,11 +22,35 @@ app.use((req, res, next) => {
 
 // Data file path
 const dataFile = path.join(__dirname, 'users.json');
+console.log('Data file path:', dataFile);
 
-// Initialize empty users array if file doesn't exist
-if (!fs.existsSync(dataFile)) {
-  fs.writeFileSync(dataFile, JSON.stringify([]));
-  console.log('Initialized empty users.json file');
+// Ensure data file exists with proper permissions
+try {
+  if (!fs.existsSync(dataFile)) {
+    console.log('Creating users.json file...');
+    fs.writeFileSync(dataFile, JSON.stringify([], null, 2), { mode: 0o644 });
+    console.log('Initialized empty users.json file');
+  } else {
+    // Verify file is readable and writable
+    fs.accessSync(dataFile, fs.constants.R_OK | fs.constants.W_OK);
+    console.log('Users.json file exists and is accessible');
+    // Log current contents
+    const currentData = fs.readFileSync(dataFile, 'utf8');
+    console.log('Current data in file:', currentData);
+  }
+} catch (error) {
+  console.error('Error with data file:', error);
+  // Try creating the file in the /tmp directory as fallback
+  const tmpFile = path.join('/tmp', 'users.json');
+  try {
+    fs.writeFileSync(tmpFile, JSON.stringify([], null, 2), { mode: 0o644 });
+    console.log('Created users.json in /tmp directory');
+    // Update dataFile path to use tmp
+    dataFile = tmpFile;
+  } catch (retryError) {
+    console.error('Critical error: Could not create or access data file:', retryError);
+    process.exit(1);
+  }
 }
 
 // Root route
@@ -53,12 +77,15 @@ app.get('/health', (req, res) => {
 // Get all users
 app.get('/api/users', (req, res) => {
   try {
-    const users = JSON.parse(fs.readFileSync(dataFile));
+    console.log('Reading from:', dataFile);
+    const data = fs.readFileSync(dataFile, 'utf8');
+    console.log('Raw data:', data);
+    const users = JSON.parse(data);
     console.log(`Retrieved ${users.length} users`);
     res.json(users);
   } catch (error) {
     console.error('Error reading users:', error);
-    res.status(500).json({ error: 'Error reading users data' });
+    res.status(500).json({ error: 'Error reading users data', details: error.message });
   }
 });
 
@@ -66,7 +93,9 @@ app.get('/api/users', (req, res) => {
 app.post('/api/users', (req, res) => {
   try {
     console.log('Received user data:', req.body);
-    const users = JSON.parse(fs.readFileSync(dataFile));
+    const data = fs.readFileSync(dataFile, 'utf8');
+    console.log('Current data:', data);
+    const users = JSON.parse(data);
     const newUser = {
       ...req.body,
       timestamp: new Date().toISOString()
@@ -74,10 +103,11 @@ app.post('/api/users', (req, res) => {
     users.push(newUser);
     fs.writeFileSync(dataFile, JSON.stringify(users, null, 2));
     console.log('User saved successfully');
+    console.log('Updated data:', fs.readFileSync(dataFile, 'utf8'));
     res.json(newUser);
   } catch (error) {
     console.error('Error saving user:', error);
-    res.status(500).json({ error: 'Error saving user data' });
+    res.status(500).json({ error: 'Error saving user data', details: error.message });
   }
 });
 
