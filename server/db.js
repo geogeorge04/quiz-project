@@ -1,6 +1,9 @@
 const { MongoClient } = require('mongodb');
 
-const uri = process.env.MONGODB_URI || "mongodb+srv://geogeorge04:2014@quiz.rs7jx0m.mongodb.net/quiz-app?retryWrites=true&w=majority";
+// Use environment variable for MongoDB connection
+const uri = process.env.MONGODB_URI || "mongodb+srv://geogeorge04:<password>@quiz.rs7jx0m.mongodb.net/?retryWrites=true&w=majority";
+
+// Create MongoDB client
 const client = new MongoClient(uri);
 
 let db;
