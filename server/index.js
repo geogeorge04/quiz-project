@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 });
 
 // Data file path
-const dataFile = path.join(__dirname, 'users.json');
+const dataFile = path.join(config.dataDir, 'users.json');
 console.log('Data file path:', dataFile);
 
 // Ensure data file exists with proper permissions
@@ -40,17 +40,8 @@ try {
   }
 } catch (error) {
   console.error('Error with data file:', error);
-  // Try creating the file in the /tmp directory as fallback
-  const tmpFile = path.join('/tmp', 'users.json');
-  try {
-    fs.writeFileSync(tmpFile, JSON.stringify([], null, 2), { mode: 0o644 });
-    console.log('Created users.json in /tmp directory');
-    // Update dataFile path to use tmp
-    dataFile = tmpFile;
-  } catch (retryError) {
-    console.error('Critical error: Could not create or access data file:', retryError);
-    process.exit(1);
-  }
+  console.error('Failed to access or create data file. Please check permissions and paths.');
+  process.exit(1);
 }
 
 // Root route
