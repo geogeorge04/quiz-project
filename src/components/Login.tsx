@@ -55,16 +55,16 @@ const Label = styled.label`
   font-weight: 500;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ hasError?: boolean }>`
   padding: 0.8rem;
-  border: 2px solid #e9ecef;
+  border: 2px solid ${props => props.hasError ? '#dc3545' : '#e9ecef'};
   border-radius: 8px;
   font-size: 1rem;
   transition: border-color 0.3s ease;
   
   &:focus {
     outline: none;
-    border-color: #4CAF50;
+    border-color: ${props => props.hasError ? '#dc3545' : '#4CAF50'};
   }
   
   @media (max-width: 768px) {
