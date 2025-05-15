@@ -273,6 +273,7 @@ Please change the parent <Route path="${M}"> to <Route path="${M==="/"?"*":`${M}
   word-wrap: break-word;
   display: flex;
   align-items: center;
+  color: #000000;
 
   &:hover {
     background: #e9ecef;
@@ -285,7 +286,7 @@ Please change the parent <Route path="${M}"> to <Route path="${M==="/"?"*":`${M}
 `,Iy=fe.span`
   margin-right: 1rem;
   font-weight: bold;
-  color: #6c757d;
+  color: #000000;
 `,Oy=fe.p`
   color: #6c757d;
   font-size: 0.9rem;
