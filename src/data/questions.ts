@@ -3,316 +3,378 @@ export interface Question {
   question: string;
   password: string;
   category: string;
+  options: string[];
 }
 
 export const questions: Question[] = [
-  // Science & Technology
+  // General Knowledge
   {
     id: 1,
-    question: "What is the chemical symbol for gold?",
-    password: "Au",
-    category: "Science"
+    question: "What is the capital of France?",
+    password: "Paris",
+    category: "Geography",
+    options: ["Berlin", "Madrid", "Paris", "Rome"]
   },
   {
     id: 2,
-    question: "Which planet is known as the Red Planet?",
-    password: "Mars",
-    category: "Science"
+    question: "Which planet is closest to the sun?",
+    password: "Mercury",
+    category: "Science",
+    options: ["Venus", "Earth", "Mars", "Mercury"]
   },
   {
     id: 3,
-    question: "What is the powerhouse of the cell?",
-    password: "Mitochondria",
-    category: "Science"
+    question: "What is the largest mammal on Earth?",
+    password: "Blue Whale",
+    category: "Science",
+    options: ["Elephant", "Giraffe", "Blue Whale", "Hippopotamus"]
   },
   {
     id: 4,
-    question: "Who invented the telephone?",
-    password: "Bell",
-    category: "Science"
+    question: "Which country gifted the Statue of Liberty to the United States?",
+    password: "France",
+    category: "History",
+    options: ["Canada", "France", "Italy", "Germany"]
   },
   {
     id: 5,
-    question: "What is the speed of light in km/s?",
-    password: "299792",
-    category: "Science"
+    question: "Which ocean is the largest by area?",
+    password: "Pacific Ocean",
+    category: "Geography",
+    options: ["Indian Ocean", "Atlantic Ocean", "Arctic Ocean", "Pacific Ocean"]
   },
   {
     id: 6,
-    question: "Which programming language is known as the 'mother of all languages'?",
-    password: "Assembly",
-    category: "Technology"
+    question: "How many bones does an adult human have?",
+    password: "206",
+    category: "Science",
+    options: ["206", "180", "220", "250"]
   },
   {
     id: 7,
-    question: "What does CPU stand for?",
-    password: "Central Processing Unit",
-    category: "Technology"
+    question: "What is the chemical symbol for water?",
+    password: "H₂O",
+    category: "Science",
+    options: ["CO₂", "H₂O", "O₂", "NaCl"]
   },
   {
     id: 8,
-    question: "In which year was the first iPhone released?",
-    password: "2007",
-    category: "Technology"
+    question: "Who wrote 'Harry Potter'?",
+    password: "J.K. Rowling",
+    category: "Literature",
+    options: ["J.R.R. Tolkien", "J.K. Rowling", "George Orwell", "William Shakespeare"]
   },
   {
     id: 9,
-    question: "Who is the co-founder of Microsoft?",
-    password: "Gates",
-    category: "Technology"
-  },
-  {
-    id: 10,
-    question: "What does HTML stand for?",
-    password: "HyperText Markup Language",
-    category: "Technology"
+    question: "Which continent has the most countries?",
+    password: "Africa",
+    category: "Geography",
+    options: ["Asia", "Africa", "Europe", "North America"]
   },
   
-  // History & Geography
+  // Kerala Specific
+  {
+    id: 10,
+    question: "Which is the longest river in Kerala?",
+    password: "Periyar",
+    category: "Kerala",
+    options: ["Periyar", "Bharathapuzha", "Pamba", "Chaliyar"]
+  },
   {
     id: 11,
-    question: "What is the capital of France?",
-    password: "Paris",
-    category: "Geography"
+    question: "Who was the first Chief Minister of Kerala?",
+    password: "E. M. S. Namboodiripad",
+    category: "Kerala",
+    options: ["K. Karunakaran", "E. M. S. Namboodiripad", "A. K. Antony", "Pattom Thanu Pillai"]
   },
   {
     id: 12,
-    question: "Which is the largest country by area?",
-    password: "Russia",
-    category: "Geography"
+    question: "The famous Onam festival commemorates the return of which legendary king?",
+    password: "Mahabali",
+    category: "Kerala",
+    options: ["Mahabali", "Ravana", "Harishchandra", "Ashoka"]
   },
   {
     id: 13,
-    question: "Which river is the longest in the world?",
-    password: "Nile",
-    category: "Geography"
+    question: "What is the name of Kerala's classical dance form?",
+    password: "Kathakali",
+    category: "Kerala",
+    options: ["Bharatanatyam", "Kuchipudi", "Kathakali", "Odissi"]
   },
   {
     id: 14,
-    question: "What is the capital of Japan?",
-    password: "Tokyo",
-    category: "Geography"
+    question: "In which year was Kerala formed as a state?",
+    password: "1956",
+    category: "Kerala",
+    options: ["1947", "1950", "1956", "1960"]
   },
   {
     id: 15,
-    question: "Which desert is the largest in the world?",
-    password: "Antarctic",
-    category: "Geography"
+    question: "Which is the highest peak in Kerala?",
+    password: "Anamudi",
+    category: "Kerala",
+    options: ["Chembra Peak", "Anamudi", "Agasthyarkoodam", "Meesapulimala"]
   },
   {
     id: 16,
-    question: "In which year did World War II end?",
-    password: "1945",
-    category: "History"
+    question: "Who is considered the father of Malayalam language?",
+    password: "Thunchaththu Ezhuthachan",
+    category: "Kerala",
+    options: ["Thunchaththu Ezhuthachan", "Kumaran Asan", "Vallathol Narayana Menon", "Ulloor"]
   },
   {
     id: 17,
-    question: "Who was the first President of the United States?",
-    password: "Washington",
-    category: "History"
+    question: "Which Kerala district has the largest forest cover?",
+    password: "Idukki",
+    category: "Kerala",
+    options: ["Idukki", "Palakkad", "Wayanad", "Pathanamthitta"]
   },
   {
     id: 18,
-    question: "Which empire was ruled by Caesar?",
-    password: "Roman",
-    category: "History"
+    question: "As per the 2011 Census, which Kerala district had the highest population?",
+    password: "Malappuram",
+    category: "Kerala",
+    options: ["Ernakulam", "Malappuram", "Thiruvananthapuram", "Kollam"]
   },
   {
     id: 19,
-    question: "When did the Industrial Revolution begin?",
-    password: "1760",
-    category: "History"
+    question: "Which district had the highest literacy rate in Kerala according to the 2011 Census?",
+    password: "Kottayam",
+    category: "Kerala",
+    options: ["Pathanamthitta", "Kottayam", "Thrissur", "Alappuzha"]
   },
   {
     id: 20,
-    question: "Who painted the Mona Lisa?",
-    password: "Da Vinci",
-    category: "History"
+    question: "Which economic sector employs the most people in Kerala?",
+    password: "Services",
+    category: "Kerala",
+    options: ["Agriculture", "Industry", "Services", "Fisheries"]
   },
-
-  // Arts & Literature
+  
+  // Statistics & Data
   {
     id: 21,
-    question: "Who wrote 'Romeo and Juliet'?",
-    password: "Shakespeare",
-    category: "Literature"
+    question: "Who is known as the 'Father of Indian Statistics'?",
+    password: "P.C. Mahalanobis",
+    category: "Statistics",
+    options: ["Karl Pearson", "Ronald Fisher", "P.C. Mahalanobis", "Francis Galton"]
   },
   {
     id: 22,
-    question: "Which artist cut off his own ear?",
-    password: "Van Gogh",
-    category: "Arts"
+    question: "What is the full form of NSSO in India?",
+    password: "National Sample Survey Office",
+    category: "Statistics",
+    options: [
+      "National Statistical Service Organization",
+      "National Survey and Statistics Office",
+      "National Sample Survey Office",
+      "National Statistics and Standards Office"
+    ]
   },
   {
     id: 23,
-    question: "Who wrote '1984'?",
-    password: "Orwell",
-    category: "Literature"
+    question: "Which age group in India is considered as the working-age population?",
+    password: "15-59 years",
+    category: "Statistics",
+    options: ["0-14 years", "15-59 years", "60+ years", "18-45 years"]
   },
   {
     id: 24,
-    question: "What art movement did Andy Warhol belong to?",
-    password: "Pop Art",
-    category: "Arts"
+    question: "In which year was the first Census conducted in India?",
+    password: "1872",
+    category: "Statistics",
+    options: ["1872", "1881", "1901", "1851"]
   },
   {
     id: 25,
-    question: "Who painted 'The Starry Night'?",
-    password: "Van Gogh",
-    category: "Arts"
+    question: "What is the scheduled frequency of the Census in India?",
+    password: "10 years",
+    category: "Statistics",
+    options: ["Every 5 years", "Every 10 years", "Every 15 years", "Every 20 years"]
   },
-
-  // Sports & Entertainment
+  
+  // Science & Technology
   {
     id: 26,
-    question: "Which country won the first FIFA World Cup?",
-    password: "Uruguay",
-    category: "Sports"
+    question: "What is the hardest natural substance on Earth?",
+    password: "Diamond",
+    category: "Science",
+    options: ["Steel", "Diamond", "Quartz", "Obsidian"]
   },
   {
     id: 27,
-    question: "In which sport would you perform a slam dunk?",
-    password: "Basketball",
-    category: "Sports"
+    question: "Who was the first woman to win a Nobel Prize?",
+    password: "Marie Curie",
+    category: "Science",
+    options: ["Rosalind Franklin", "Marie Curie", "Ada Lovelace", "Florence Nightingale"]
   },
   {
     id: 28,
-    question: "Who has won the most Olympic medals?",
-    password: "Phelps",
-    category: "Sports"
+    question: "Which famous scientist developed the theory of relativity?",
+    password: "Albert Einstein",
+    category: "Science",
+    options: ["Isaac Newton", "Albert Einstein", "Galileo Galilei", "Stephen Hawking"]
   },
   {
     id: 29,
-    question: "Which movie won the first Academy Award for Best Picture?",
-    password: "Wings",
-    category: "Entertainment"
+    question: "In which year did Facebook launch?",
+    password: "2004",
+    category: "Technology",
+    options: ["2002", "2003", "2004", "2005"]
   },
   {
     id: 30,
-    question: "Who is known as the 'King of Pop'?",
-    password: "Jackson",
-    category: "Entertainment"
+    question: "Which Indian city is known as the 'Silicon Valley of India'?",
+    password: "Bengaluru",
+    category: "Technology",
+    options: ["Hyderabad", "Chennai", "Bengaluru", "Pune"]
   },
-
-  // General Knowledge
+  
+  // History & Culture
   {
     id: 31,
-    question: "What is the largest organ in the human body?",
-    password: "Skin",
-    category: "General"
+    question: "Which country is known as the Land of the Rising Sun?",
+    password: "Japan",
+    category: "Geography",
+    options: ["China", "Japan", "South Korea", "Thailand"]
   },
   {
     id: 32,
-    question: "How many continents are there?",
-    password: "7",
-    category: "General"
+    question: "Who painted the Mona Lisa?",
+    password: "Leonardo da Vinci",
+    category: "Arts",
+    options: ["Leonardo da Vinci", "Raphael", "Michelangelo", "Rembrandt"]
   },
   {
     id: 33,
-    question: "What is the currency of Japan?",
-    password: "Yen",
-    category: "General"
+    question: "Who is known as the 'Missile Man of India'?",
+    password: "A. P. J. Abdul Kalam",
+    category: "History",
+    options: ["Homi Bhabha", "Vikram Sarabhai", "A. P. J. Abdul Kalam", "K. Radhakrishnan"]
   },
   {
     id: 34,
-    question: "Which animal is known as the 'King of the Jungle'?",
-    password: "Lion",
-    category: "General"
+    question: "Which is the longest lake in Kerala?",
+    password: "Vembanad Lake",
+    category: "Kerala",
+    options: ["Ashtamudi Lake", "Vembanad Lake", "Sasthamcotta Lake", "Periyar Lake"]
   },
   {
     id: 35,
-    question: "What is the hardest natural substance?",
-    password: "Diamond",
-    category: "General"
+    question: "Which is the smallest district in Kerala by area?",
+    password: "Alappuzha",
+    category: "Kerala",
+    options: ["Wayanad", "Alappuzha", "Pathanamthitta", "Thrissur"]
   },
+  
+  // Statistics & Probability
   {
     id: 36,
-    question: "What percentage of Earth's surface is water?",
-    password: "71",
-    category: "General"
+    question: "Who is considered the father of modern statistics?",
+    password: "Ronald Fisher",
+    category: "Statistics",
+    options: ["Karl Pearson", "Ronald Fisher", "John Tukey", "Francis Galton"]
   },
   {
     id: 37,
-    question: "How many bones are in the human body?",
-    password: "206",
-    category: "General"
+    question: "Which country first introduced probability theory as a formal discipline?",
+    password: "France",
+    category: "Statistics",
+    options: ["Germany", "France", "England", "Italy"]
   },
   {
     id: 38,
-    question: "What is the most spoken language in the world?",
-    password: "Mandarin",
-    category: "General"
+    question: "Which statistical graph is commonly used to display the distribution of a dataset?",
+    password: "Histogram",
+    category: "Statistics",
+    options: ["Pie Chart", "Histogram", "Scatter Plot", "Line Graph"]
   },
   {
     id: 39,
-    question: "Which planet is closest to the Sun?",
-    password: "Mercury",
-    category: "Science"
+    question: "Who developed the concept of probability in mathematics?",
+    password: "Blaise Pascal",
+    category: "Statistics",
+    options: ["Blaise Pascal", "Carl Friedrich Gauss", "Pierre-Simon Laplace", "Thomas Bayes"]
   },
   {
     id: 40,
-    question: "What is the chemical formula for water?",
-    password: "H2O",
-    category: "Science"
+    question: "How many continents are there in the world?",
+    password: "Seven",
+    category: "Geography",
+    options: ["Five", "Six", "Seven", "Eight"]
   },
+  
+  // Additional Kerala Questions
   {
     id: 41,
-    question: "Who painted the ceiling of the Sistine Chapel?",
-    password: "Michelangelo",
-    category: "Arts"
+    question: "What is the most urbanized district in Kerala (by % urban population)?",
+    password: "Ernakulam",
+    category: "Kerala",
+    options: ["Kozhikode", "Ernakulam", "Kannur", "Thiruvananthapuram"]
   },
   {
     id: 42,
-    question: "What is the capital of Australia?",
-    password: "Canberra",
-    category: "Geography"
+    question: "What is Kerala's rank in India in terms of Human Development Index (HDI)?",
+    password: "First",
+    category: "Kerala",
+    options: ["First", "Second", "Third", "Fourth"]
   },
   {
     id: 43,
-    question: "Who wrote 'The Great Gatsby'?",
-    password: "Fitzgerald",
-    category: "Literature"
+    question: "Which crop is most widely cultivated in Kerala?",
+    password: "Coconut",
+    category: "Kerala",
+    options: ["Tea", "Coconut", "Rice", "Banana"]
   },
   {
     id: 44,
-    question: "In what year did the Berlin Wall fall?",
-    password: "1989",
-    category: "History"
+    question: "As per the Economic Review, which district receives the highest remittance inflow?",
+    password: "Malappuram",
+    category: "Kerala",
+    options: ["Kottayam", "Malappuram", "Thrissur", "Pathanamthitta"]
   },
   {
     id: 45,
-    question: "Which element has the atomic number 1?",
-    password: "Hydrogen",
-    category: "Science"
+    question: "What is the approximate infant mortality rate (IMR) in Kerala (as per recent DES data)?",
+    password: "7",
+    category: "Kerala",
+    options: ["20 per 1000 live births", "12 per 1000 live births", "7 per 1000 live births", "4 per 1000 live births"]
   },
+  
+  // Indian Statistics
   {
     id: 46,
-    question: "Who invented the World Wide Web?",
-    password: "Berners-Lee",
-    category: "Technology"
+    question: "Which Indian state has the lowest population (Census 2011)?",
+    password: "Sikkim",
+    category: "Statistics",
+    options: ["Sikkim", "Mizoram", "Arunachal Pradesh", "Goa"]
   },
   {
     id: 47,
-    question: "What is the largest planet in our solar system?",
-    password: "Jupiter",
-    category: "Science"
+    question: "Which is the least densely populated state in India?",
+    password: "Arunachal Pradesh",
+    category: "Statistics",
+    options: ["Mizoram", "Arunachal Pradesh", "Sikkim", "Nagaland"]
   },
   {
     id: 48,
-    question: "Which country is home to the Great Barrier Reef?",
-    password: "Australia",
-    category: "Geography"
+    question: "Which city has the highest population density among Indian metros?",
+    password: "Mumbai",
+    category: "Statistics",
+    options: ["Delhi", "Mumbai", "Kolkata", "Chennai"]
   },
   {
     id: 49,
-    question: "Who wrote 'To Kill a Mockingbird'?",
-    password: "Lee",
-    category: "Literature"
+    question: "Which department is primarily responsible for statistical data collection in Kerala?",
+    password: "DES",
+    category: "Statistics",
+    options: ["Planning Board", "DES (Department of Economics & Statistics)", "Revenue Department", "Local Self Government"]
   },
   {
     id: 50,
-    question: "What is the smallest prime number?",
-    password: "2",
-    category: "General"
+    question: "Which is the largest animal in the world?",
+    password: "Blue Whale",
+    category: "Science",
+    options: ["Elephant", "Blue Whale", "Giraffe", "Hippopotamus"]
   }
 ]; 

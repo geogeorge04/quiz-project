@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import type { Question } from '../data/questions';
 import { questions } from '../data/questions';
 import { useNavigate } from 'react-router-dom';
+import { saveScore } from '../utils/storage';
 
 const QuizContainer = styled.div`
   width: 100%;
@@ -120,42 +121,6 @@ const Message = styled.p<{ isError?: boolean }>`
   }
 `;
 
-const NextButton = styled.button`
-  padding: 1.2rem 2rem;
-  background: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  width: 100%;
-  margin-top: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-
-  @media (max-width: 768px) {
-    padding: 1rem;
-    font-size: 1.1rem;
-  }
-
-  &:hover {
-    background: #45a049;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-
-  &:disabled {
-    background: #cccccc;
-    cursor: not-allowed;
-    transform: none;
-  }
-`;
-
 const LoadingContainer = styled.div`
   text-align: center;
   padding: 2rem;
@@ -183,6 +148,49 @@ const LoadingContainer = styled.div`
   }
 `;
 
+const OptionsContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin: 1rem 0;
+`;
+
+const OptionButton = styled.button`
+  padding: 1rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  word-wrap: break-word;
+  display: flex;
+  align-items: center;
+
+  &:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+`;
+
+const OptionLabel = styled.span`
+  margin-right: 1rem;
+  font-weight: bold;
+  color: #6c757d;
+`;
+
+const HintText = styled.p`
+  color: #6c757d;
+  font-size: 0.9rem;
+  margin: 0.5rem 0;
+  font-style: italic;
+`;
+
 const Quiz: React.FC = () => {
   const navigate = useNavigate();
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
@@ -193,6 +201,8 @@ const Quiz: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [score, setScore] = useState(0);
   const [categoryScores, setCategoryScores] = useState<Record<string, { correct: number, total: number }>>({});
+  const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -241,6 +251,11 @@ const Quiz: React.FC = () => {
     }
   }, []);
 
+  const handleOptionClick = (option: string) => {
+    setPassword(option);
+    setSelectedOption(option);
+  };
+
   const currentQuestion = selectedQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex) / 5) * 100;
 
@@ -265,32 +280,66 @@ const Quiz: React.FC = () => {
       }
 
       // Move to next question after a short delay
-      setTimeout(() => {
+      setTimeout(async () => {
         if (currentQuestionIndex < 4) {
           setCurrentQuestionIndex(prev => prev + 1);
           setPassword('');
           setShowResult(false);
+          setSelectedOption(null);
         } else {
+          // Calculate final scores
+          const finalCategoryScores = Object.entries(categoryScores)
+            .filter(([_, scores]) => scores.total > 0)
+            .reduce((acc, [category, scores]) => {
+              const updatedScores = category === currentQuestion.category 
+                ? { correct: scores.correct + 1, total: scores.total + 1 }
+                : scores;
+              acc[category] = updatedScores;
+              return acc;
+            }, {} as Record<string, { correct: number, total: number }>);
+
+          const finalScore = score + 1;
+          
+          // Save score to database
+          try {
+            const userData = localStorage.getItem('quizUserData');
+            if (!userData) {
+              throw new Error('User data not found');
+            }
+            
+            const { name, _id } = JSON.parse(userData);
+            const saved = await saveScore({
+              userId: _id,
+              name,
+              totalScore: finalScore,
+              categoryScores: finalCategoryScores
+            });
+            
+            if (!saved) {
+              throw new Error('Failed to save score');
+            }
+          } catch (err) {
+            console.error('Error saving score:', err);
+            setError('Failed to save your score, but the quiz is complete.');
+          }
+
           // Show final score with category breakdown
-          const finalScore = `Final Score: ${score + 1}/5\n\nCategory Breakdown:\n${
-            Object.entries(categoryScores)
-              .filter(([_, scores]) => scores.total > 0)
-              .map(([category, scores]) => {
-                const updatedScores = category === currentQuestion.category 
-                  ? { correct: scores.correct + 1, total: scores.total + 1 }
-                  : scores;
-                return `${category}: ${updatedScores.correct}/${updatedScores.total} (${Math.round((updatedScores.correct/updatedScores.total)*100)}%)`;
-              })
+          const scoreMessage = `Final Score: ${finalScore}/5\n\nCategory Breakdown:\n${
+            Object.entries(finalCategoryScores)
+              .map(([category, scores]) => 
+                `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+              )
               .join('\n')
           }`;
-          alert(finalScore);
+          
+          alert(scoreMessage);
           navigate('/');
         }
       }, 1500);
     } else {
       // End session on wrong password
       setTimeout(() => {
-        alert('Incorrect password. Quiz session ended.');
+        alert('Incorrect answer. Quiz session ended.');
         navigate('/');
       }, 1500);
     }
@@ -308,13 +357,16 @@ const Quiz: React.FC = () => {
     return (
       <LoadingContainer>
         <h2>No questions available</h2>
-        <NextButton onClick={() => navigate('/')}>Return to Home</NextButton>
+        <button onClick={() => navigate('/')}>Return to Home</button>
       </LoadingContainer>
     );
   }
 
+  const optionLabels = ['A', 'B', 'C', 'D'];
+
   return (
     <QuizContainer>
+      {error && <Message isError>{error}</Message>}
       <ProgressBar>
         <Progress width={progress} />
       </ProgressBar>
@@ -323,12 +375,29 @@ const Quiz: React.FC = () => {
         Question {currentQuestionIndex + 1}/5: {currentQuestion.question}
       </QuestionText>
 
+      <HintText>Click an option to select your answer:</HintText>
+
+      <OptionsContainer>
+        {currentQuestion.options.map((option, index) => (
+          <OptionButton
+            key={index}
+            onClick={() => handleOptionClick(option)}
+            style={{
+              background: selectedOption === option ? '#e9ecef' : '#f8f9fa',
+              border: selectedOption === option ? '2px solid #4CAF50' : '1px solid #e9ecef'
+            }}
+          >
+            <OptionLabel>{optionLabels[index]})</OptionLabel>
+            {option}
+          </OptionButton>
+        ))}
+      </OptionsContainer>
+
       <form onSubmit={handleSubmit}>
         <PasswordInput
-          type="password"
+          type="hidden"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Enter password"
           disabled={showResult}
           autoComplete="off"
         />
@@ -341,7 +410,7 @@ const Quiz: React.FC = () => {
         <Message isError={!isCorrect}>
           {isCorrect 
             ? '✨ Correct! Moving to next question...' 
-            : '❌ Incorrect password. Session ending...'}
+            : '❌ Incorrect answer. Session ending...'}
         </Message>
       )}
     </QuizContainer>

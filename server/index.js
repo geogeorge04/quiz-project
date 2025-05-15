@@ -71,6 +71,24 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
+// Add quiz score
+app.post('/api/scores', async (req, res) => {
+  try {
+    console.log('Received score data:', req.body);
+    const db = getDb();
+    const scoreData = {
+      ...req.body,
+      timestamp: new Date().toISOString()
+    };
+    const result = await db.collection('scores').insertOne(scoreData);
+    console.log('Score saved successfully:', result.insertedId);
+    res.json(scoreData);
+  } catch (error) {
+    console.error('Error saving score:', error);
+    res.status(500).json({ error: 'Error saving score data', details: error.message });
+  }
+});
+
 // Handle 404s
 app.use((req, res) => {
   console.log(`404 - Not Found: ${req.originalUrl}`);
