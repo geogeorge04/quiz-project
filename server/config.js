@@ -3,7 +3,8 @@ const config = {
   allowedOrigins: [
     'http://localhost:5173',
     'http://localhost:3000',
-    'https://geogeorge04.github.io'
+    'https://geogeorge04.github.io',
+    'https://quiz-master-7kp8.onrender.com'
   ],
   env: process.env.NODE_ENV || 'development',
   dataDir: process.env.NODE_ENV === 'production' ? '/tmp' : __dirname
