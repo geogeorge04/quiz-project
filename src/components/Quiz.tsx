@@ -38,60 +38,43 @@ const QuestionText = styled.h2`
   }
 `;
 
-const OptionsContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+const PasswordInput = styled.input`
+  width: 100%;
+  padding: 1rem;
+  margin: 1rem 0;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
   
-  @media (max-width: 768px) {
-    gap: 0.8rem;
-    margin-bottom: 1rem;
+  &:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   }
 `;
 
-const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
-  padding: 1.2rem;
-  border: 2px solid ${props => {
-    if (props.selected && props.correct) return '#4CAF50';
-    if (props.selected) return '#d32f2f';
-    return '#dee2e6';
-  }};
+const SubmitButton = styled.button`
+  padding: 1rem 2rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
   border-radius: 8px;
-  background: ${props => {
-    if (props.selected && props.correct) return '#E8F5E9';
-    if (props.selected) return '#FFEBEE';
-    return '#ffffff';
-  }};
+  font-size: 1.1rem;
+  font-weight: bold;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.1rem;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  text-align: left;
-  min-height: 44px;
-  color: #2C3E50;
-  font-weight: 500;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  
-  @media (max-width: 768px) {
-    padding: 1rem;
-    font-size: 1rem;
-  }
+  width: 100%;
+  margin-top: 1rem;
 
   &:hover {
-    background: ${props => {
-      if (props.selected && props.correct) return '#E8F5E9';
-      if (props.selected) return '#FFEBEE';
-      return '#f8f9fa';
-    }};
+    background: #45a049;
     transform: translateY(-2px);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
   }
 
   &:disabled {
-    opacity: ${props => props.selected ? 1 : 0.7};
-    cursor: default;
+    background: #cccccc;
+    cursor: not-allowed;
     transform: none;
   }
 `;
@@ -204,7 +187,7 @@ const Quiz: React.FC = () => {
   const navigate = useNavigate();
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<string>('');
+  const [password, setPassword] = useState('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -261,45 +244,55 @@ const Quiz: React.FC = () => {
   const currentQuestion = selectedQuestions[currentQuestionIndex];
   const progress = ((currentQuestionIndex) / 5) * 100;
 
-  const handleOptionSelect = (option: string) => {
-    setSelectedOption(option);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correct = password.toLowerCase() === currentQuestion?.password?.toLowerCase();
     setShowResult(true);
-    const correct = option === currentQuestion?.correctAnswer;
     setIsCorrect(correct);
     
     if (correct) {
       setScore(prev => prev + 1);
-    }
-    
-    // Update category scores
-    if (currentQuestion?.category) {
-      setCategoryScores(prev => ({
-        ...prev,
-        [currentQuestion.category]: {
-          correct: prev[currentQuestion.category]?.correct + (correct ? 1 : 0),
-          total: (prev[currentQuestion.category]?.total || 0) + 1
-        }
-      }));
-    }
-  };
+      
+      // Update category scores
+      if (currentQuestion?.category) {
+        setCategoryScores(prev => ({
+          ...prev,
+          [currentQuestion.category]: {
+            correct: prev[currentQuestion.category]?.correct + 1,
+            total: (prev[currentQuestion.category]?.total || 0) + 1
+          }
+        }));
+      }
 
-  const handleNextQuestion = () => {
-    if (currentQuestionIndex < 4) {
-      setCurrentQuestionIndex(prev => prev + 1);
-      setSelectedOption('');
-      setShowResult(false);
+      // Move to next question after a short delay
+      setTimeout(() => {
+        if (currentQuestionIndex < 4) {
+          setCurrentQuestionIndex(prev => prev + 1);
+          setPassword('');
+          setShowResult(false);
+        } else {
+          // Show final score with category breakdown
+          const finalScore = `Final Score: ${score + 1}/5\n\nCategory Breakdown:\n${
+            Object.entries(categoryScores)
+              .filter(([_, scores]) => scores.total > 0)
+              .map(([category, scores]) => {
+                const updatedScores = category === currentQuestion.category 
+                  ? { correct: scores.correct + 1, total: scores.total + 1 }
+                  : scores;
+                return `${category}: ${updatedScores.correct}/${updatedScores.total} (${Math.round((updatedScores.correct/updatedScores.total)*100)}%)`;
+              })
+              .join('\n')
+          }`;
+          alert(finalScore);
+          navigate('/');
+        }
+      }, 1500);
     } else {
-      // Show final score with category breakdown
-      const finalScore = `Final Score: ${score}/5\n\nCategory Breakdown:\n${
-        Object.entries(categoryScores)
-          .filter(([_, scores]) => scores.total > 0) // Only show categories that had questions
-          .map(([category, scores]) => 
-            `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
-          )
-          .join('\n')
-      }`;
-      alert(finalScore);
-      navigate('/');
+      // End session on wrong password
+      setTimeout(() => {
+        alert('Incorrect password. Quiz session ended.');
+        navigate('/');
+      }, 1500);
     }
   };
 
@@ -330,31 +323,26 @@ const Quiz: React.FC = () => {
         Question {currentQuestionIndex + 1}/5: {currentQuestion.question}
       </QuestionText>
 
-      <OptionsContainer>
-        {currentQuestion.options.map((option, index) => (
-          <Option
-            key={index}
-            selected={selectedOption === option}
-            correct={option === currentQuestion.correctAnswer}
-            onClick={() => !showResult && handleOptionSelect(option)}
-            disabled={showResult}
-          >
-            {option}
-          </Option>
-        ))}
-      </OptionsContainer>
+      <form onSubmit={handleSubmit}>
+        <PasswordInput
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Enter password"
+          disabled={showResult}
+          autoComplete="off"
+        />
+        <SubmitButton type="submit" disabled={!password || showResult}>
+          Submit Answer
+        </SubmitButton>
+      </form>
 
       {showResult && (
-        <>
-          <Message isError={!isCorrect}>
-            {isCorrect 
-              ? '✨ Correct! Well done!' 
-              : `❌ Incorrect. The correct answer is: ${currentQuestion.correctAnswer}`}
-          </Message>
-          <NextButton onClick={handleNextQuestion}>
-            {currentQuestionIndex < 4 ? 'Next Question' : 'Complete Quiz'}
-          </NextButton>
-        </>
+        <Message isError={!isCorrect}>
+          {isCorrect 
+            ? '✨ Correct! Moving to next question...' 
+            : '❌ Incorrect password. Session ending...'}
+        </Message>
       )}
     </QuizContainer>
   );
