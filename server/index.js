@@ -14,18 +14,26 @@ app.use(cors({
 }));
 app.use(express.json());
 
+// Add request logging
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
+  next();
+});
+
 // Data file path
 const dataFile = path.join(__dirname, 'users.json');
 
 // Initialize empty users array if file doesn't exist
 if (!fs.existsSync(dataFile)) {
   fs.writeFileSync(dataFile, JSON.stringify([]));
+  console.log('Initialized empty users.json file');
 }
 
 // Root route
 app.get('/', (req, res) => {
   res.json({ 
     message: 'Quiz App Backend API',
+    version: '1.0.0',
     endpoints: {
       health: '/health',
       users: '/api/users'
@@ -35,13 +43,18 @@ app.get('/', (req, res) => {
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
 // Get all users
 app.get('/api/users', (req, res) => {
   try {
     const users = JSON.parse(fs.readFileSync(dataFile));
+    console.log(`Retrieved ${users.length} users`);
     res.json(users);
   } catch (error) {
     console.error('Error reading users:', error);
@@ -70,6 +83,7 @@ app.post('/api/users', (req, res) => {
 
 // Handle 404s
 app.use((req, res) => {
+  console.log(`404 - Not Found: ${req.originalUrl}`);
   res.status(404).json({ 
     error: 'Not Found',
     endpoint: req.originalUrl
@@ -82,6 +96,25 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(config.port, () => {
+const server = app.listen(config.port, () => {
   console.log(`Server running at http://localhost:${config.port}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Allowed origins:', config.allowedOrigins);
+});
+
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
+
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 }); 
