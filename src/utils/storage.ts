@@ -7,7 +7,7 @@ interface UserData {
 
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3001/api'
-  : 'https://quiz-app-backend.onrender.com/api';
+  : 'https://quiz-app-backend-vpp3.onrender.com/api';
 
 const saveUserToLocalStorage = (userData: Omit<UserData, 'timestamp'>): boolean => {
   try {
