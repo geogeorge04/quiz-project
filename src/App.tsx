@@ -24,7 +24,8 @@ const AppContent = styled.div`
   max-width: 800px; /* Adjust as needed */
 `;
 
-const App: React.FC = () => {
+// Separate component for the routes to use navigation
+const AppRoutes: React.FC = () => {
   const navigate = useNavigate();
 
   const handleStartQuiz = (userInfo: { name: string; email: string; contact: string }) => {
@@ -35,14 +36,20 @@ const App: React.FC = () => {
   };
 
   return (
+    <Routes>
+      <Route path="/" element={<Login onStart={handleStartQuiz} />} />
+      <Route path="/quiz" element={<Quiz />} />
+    </Routes>
+  );
+};
+
+const App: React.FC = () => {
+  return (
     <Router>
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>
-          <Routes>
-            <Route path="/" element={<Login onStart={handleStartQuiz} />} />
-            <Route path="/quiz" element={<Quiz />} />
-          </Routes>
+          <AppRoutes />
         </AppContent>
       </AppContainer>
     </Router>

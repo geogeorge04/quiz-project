@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import type { Question } from '../data/questions';
 import { questions } from '../data/questions';
+import { useNavigate } from 'react-router-dom';
 
 const QuizContainer = styled.div`
   max-width: 800px;
@@ -88,17 +89,39 @@ const NextButton = styled.button`
   }
 `;
 
+const LoadingContainer = styled.div`
+  text-align: center;
+  padding: 2rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+`;
+
 const Quiz: React.FC = () => {
+  const navigate = useNavigate();
   const [selectedQuestions, setSelectedQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Randomly select 5 questions
-    const shuffled = [...questions].sort(() => 0.5 - Math.random());
-    setSelectedQuestions(shuffled.slice(0, 5));
+    try {
+      // Randomly select 5 questions
+      const shuffled = [...questions].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, 5);
+      
+      if (selected.length === 0) {
+        throw new Error('No questions available');
+      }
+      
+      setSelectedQuestions(selected);
+    } catch (error) {
+      console.error('Error loading questions:', error);
+    } finally {
+      setIsLoading(false);
+    }
   }, []);
 
   const currentQuestion = selectedQuestions[currentQuestionIndex];
@@ -117,10 +140,26 @@ const Quiz: React.FC = () => {
       setShowResult(false);
     } else {
       alert('Congratulations! You have completed the quiz!');
+      navigate('/');
     }
   };
 
-  if (!currentQuestion) return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <LoadingContainer>
+        <h2>Loading questions...</h2>
+      </LoadingContainer>
+    );
+  }
+
+  if (!currentQuestion || selectedQuestions.length === 0) {
+    return (
+      <LoadingContainer>
+        <h2>No questions available</h2>
+        <NextButton onClick={() => navigate('/')}>Return to Home</NextButton>
+      </LoadingContainer>
+    );
+  }
 
   return (
     <QuizContainer>
@@ -153,11 +192,9 @@ const Quiz: React.FC = () => {
               ? '✨ Correct! Well done!' 
               : `❌ Incorrect. The correct answer is: ${currentQuestion.correctAnswer}`}
           </Message>
-          {isCorrect && (
-            <NextButton onClick={handleNextQuestion}>
-              {currentQuestionIndex < 4 ? 'Next Question' : 'Complete Quiz'}
-            </NextButton>
-          )}
+          <NextButton onClick={handleNextQuestion}>
+            {currentQuestionIndex < 4 ? 'Next Question' : 'Complete Quiz'}
+          </NextButton>
         </>
       )}
     </QuizContainer>
