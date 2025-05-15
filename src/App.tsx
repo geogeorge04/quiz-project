@@ -4,8 +4,7 @@ import Login from './components/Login'; // Assuming Login.tsx is in ./components
 import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./components
 import Admin from './components/Admin';
 import styled from 'styled-components';
-import { db } from './firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { saveUser } from './utils/storage';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -51,16 +50,15 @@ const AppRoutes: React.FC = () => {
 
   const handleStartQuiz = async (userInfo: { name: string; email: string; contact: string }) => {
     try {
-      // Add user data to Firestore
-      await addDoc(collection(db, 'quiz-users'), {
-        ...userInfo,
-        timestamp: serverTimestamp(),
-      });
-      console.log('User data saved successfully');
+      const saved = saveUser(userInfo);
+      if (!saved) {
+        throw new Error('Failed to save user data');
+      }
+      navigate('/quiz');
     } catch (error) {
       console.error('Error saving user data:', error);
+      alert('There was an error saving your information. Please try again.');
     }
-    navigate('/quiz');
   };
 
   return (

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { collection, query, orderBy, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
 import styled from 'styled-components';
+import { getUsers } from '../utils/storage';
 
 const AdminContainer = styled.div`
   padding: 2rem;
@@ -60,42 +59,25 @@ const SearchInput = styled.input`
   }
 `;
 
-const StatsContainer = styled.div`
-  display: flex;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-`;
-
-const StatCard = styled.div`
-  background: #f8f9fa;
-  padding: 1rem;
-  border-radius: 8px;
-  flex: 1;
-  min-width: 150px;
+const ExportButton = styled.button`
+  padding: 0.5rem 1rem;
+  background: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s ease;
   
-  h3 {
-    color: #2C3E50;
-    margin: 0 0 0.5rem 0;
-    font-size: 0.9rem;
-  }
-  
-  p {
-    color: #4CAF50;
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 600;
+  &:hover {
+    background: #45a049;
   }
 `;
 
 interface UserData {
-  id: string;
   name: string;
   email: string;
   contact: string;
-  timestamp: {
-    toDate: () => Date;
-  };
+  timestamp: string;
 }
 
 const Admin: React.FC = () => {
@@ -104,18 +86,15 @@ const Admin: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
 
   useEffect(() => {
-    const q = query(collection(db, 'quiz-users'), orderBy('timestamp', 'desc'));
-    
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const userData: UserData[] = [];
-      snapshot.forEach((doc) => {
-        userData.push({ id: doc.id, ...doc.data() } as UserData);
-      });
-      setUsers(userData);
-      setFilteredUsers(userData);
-    });
+    // Initial load
+    setUsers(getUsers());
 
-    return () => unsubscribe();
+    // Set up interval to check for new data
+    const interval = setInterval(() => {
+      setUsers(getUsers());
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -127,27 +106,30 @@ const Admin: React.FC = () => {
     setFilteredUsers(filtered);
   }, [searchTerm, users]);
 
-  const getTodayCount = () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return users.filter(user => user.timestamp.toDate() >= today).length;
+  const exportToCSV = () => {
+    const headers = ['Name', 'Email', 'Contact', 'Timestamp'];
+    const csvData = [
+      headers.join(','),
+      ...filteredUsers.map(user => 
+        [user.name, user.email, user.contact, new Date(user.timestamp).toLocaleString()].join(',')
+      )
+    ].join('\n');
+
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quiz-users-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   };
 
   return (
     <AdminContainer>
       <Title>Quiz User Data</Title>
       
-      <StatsContainer>
-        <StatCard>
-          <h3>Total Users</h3>
-          <p>{users.length}</p>
-        </StatCard>
-        <StatCard>
-          <h3>Today's Logins</h3>
-          <p>{getTodayCount()}</p>
-        </StatCard>
-      </StatsContainer>
-
       <SearchContainer>
         <SearchInput 
           type="text"
@@ -155,6 +137,9 @@ const Admin: React.FC = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
+        <ExportButton onClick={exportToCSV}>
+          Export to CSV
+        </ExportButton>
       </SearchContainer>
 
       <Table>
@@ -167,12 +152,12 @@ const Admin: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map((user) => (
-            <tr key={user.id}>
+          {filteredUsers.map((user, index) => (
+            <tr key={index}>
               <td>{user.name}</td>
               <td>{user.email}</td>
               <td>{user.contact}</td>
-              <td>{user.timestamp?.toDate().toLocaleString()}</td>
+              <td>{new Date(user.timestamp).toLocaleString()}</td>
             </tr>
           ))}
           {filteredUsers.length === 0 && (
