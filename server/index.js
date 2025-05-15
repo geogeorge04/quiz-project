@@ -2,13 +2,13 @@ const express = require('express');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
+const config = require('./config');
 
 const app = express();
-const port = 3001;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: config.allowedOrigins,
   methods: ['GET', 'POST'],
   credentials: true
 }));
@@ -21,6 +21,11 @@ const dataFile = path.join(__dirname, 'users.json');
 if (!fs.existsSync(dataFile)) {
   fs.writeFileSync(dataFile, JSON.stringify([]));
 }
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
 // Get all users
 app.get('/api/users', (req, res) => {
@@ -58,6 +63,6 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-app.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+app.listen(config.port, () => {
+  console.log(`Server running at http://localhost:${config.port}`);
 }); 

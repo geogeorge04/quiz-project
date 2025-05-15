@@ -5,8 +5,9 @@ interface UserData {
   timestamp: string;
 }
 
-// For GitHub Pages deployment, we'll fall back to localStorage
-const isProduction = window.location.hostname !== 'localhost';
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001/api'
+  : 'https://quiz-app-backend.onrender.com/api';
 
 const saveUserToLocalStorage = (userData: Omit<UserData, 'timestamp'>): boolean => {
   try {
@@ -35,12 +36,8 @@ const getUsersFromLocalStorage = (): UserData[] => {
 };
 
 export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<boolean> => {
-  if (isProduction) {
-    return saveUserToLocalStorage(userData);
-  }
-
   try {
-    const response = await fetch('http://localhost:3001/api/users', {
+    const response = await fetch(`${API_URL}/users`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -61,12 +58,8 @@ export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<b
 };
 
 export const getUsers = async (): Promise<UserData[]> => {
-  if (isProduction) {
-    return getUsersFromLocalStorage();
-  }
-
   try {
-    const response = await fetch('http://localhost:3001/api/users');
+    const response = await fetch(`${API_URL}/users`);
     if (!response.ok) {
       const errorData = await response.json();
       throw new Error(errorData.error || 'Failed to fetch users');
