@@ -6,6 +6,8 @@ services:
     envVars:
       - key: NODE_VERSION
         value: 18.19.0
+      - key: VITE_API_URL
+        value: https://quiz-app-backend.onrender.com
 
   - name: quiz-app-backend
     type: web
@@ -14,4 +16,10 @@ services:
     startCommand: cd server && npm start
     envVars:
       - key: NODE_VERSION
-        value: 18.19.0 
+        value: 18.19.0
+      - key: MONGODB_URI
+        sync: false # This will be set manually in Render dashboard
+      - key: PORT
+        value: 3000
+      - key: CORS_ORIGIN
+        value: https://quiz-app.onrender.com # This will be your frontend URL 
