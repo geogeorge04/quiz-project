@@ -48,8 +48,6 @@ const AppRoutes: React.FC = () => {
 
   const handleStartQuiz = (userInfo: { name: string; email: string; contact: string }) => {
     console.log('User Info:', userInfo);
-    //  You might want to store user info in a global state management solution (like Redux or React Context)
-    //  so that the Quiz component can access it.  For now, we just navigate.
     navigate('/quiz');
   };
 
@@ -62,11 +60,8 @@ const AppRoutes: React.FC = () => {
 };
 
 const App: React.FC = () => {
-  // Use the same environment check as vite.config.ts
-  const basename = import.meta.env.VERCEL ? '/' : '/quiz-project';
-  
   return (
-    <Router basename={basename}>
+    <Router>
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>
