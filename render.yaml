@@ -1,1 +1,17 @@
- 
+services:
+  - name: quiz-app-frontend
+    type: web
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 18.19.0
+
+  - name: quiz-app-backend
+    type: web
+    env: node
+    buildCommand: cd server && npm install
+    startCommand: cd server && npm start
+    envVars:
+      - key: NODE_VERSION
+        value: 18.19.0 
