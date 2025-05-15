@@ -9,19 +9,37 @@ const AppContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
 `;
 
 const Title = styled.h1`
-  color: #333;
-  margin-bottom: 2rem;
+  color: #2C3E50;
+  margin-bottom: 1.5rem;
   text-align: center;
+  font-size: 1.5rem;
+  padding: 0 1rem;
+  word-wrap: break-word;
+  font-weight: 600;
+  
+  @media (min-width: 768px) {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+  }
 `;
 
 const AppContent = styled.div`
   width: 100%;
-  max-width: 800px; /* Adjust as needed */
+  max-width: 800px;
+  padding: 0 0.5rem;
+  
+  @media (min-width: 768px) {
+    padding: 0;
+  }
 `;
 
 // Separate component for the routes to use navigation
@@ -45,7 +63,7 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
+    <Router basename="/quiz-project">
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>

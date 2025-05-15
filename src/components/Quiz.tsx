@@ -6,22 +6,43 @@ import { useNavigate } from 'react-router-dom';
 
 const QuizContainer = styled.div`
   max-width: 800px;
+  width: 100%;
   margin: 0 auto;
-  padding: 2rem;
-  background: white;
+  padding: 1rem;
+  background: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
 `;
 
 const QuestionText = styled.h2`
-  color: #333;
+  color: #000000;
   margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+  word-wrap: break-word;
+  font-weight: bold;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  
+  @media (min-width: 768px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const OptionsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  
+  @media (min-width: 768px) {
+    gap: 1rem;
+  }
 `;
 
 const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
@@ -29,32 +50,58 @@ const Option = styled.button<{ selected?: boolean; correct?: boolean }>`
   border: 2px solid ${props => {
     if (props.selected && props.correct) return '#4CAF50';
     if (props.selected) return '#d32f2f';
-    return '#ddd';
+    return '#dee2e6';
   }};
-  border-radius: 5px;
+  border-radius: 8px;
   background: ${props => {
     if (props.selected && props.correct) return '#E8F5E9';
     if (props.selected) return '#FFEBEE';
-    return 'white';
+    return '#ffffff';
   }};
   cursor: pointer;
   transition: all 0.3s ease;
+  font-size: 1rem;
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  text-align: left;
+  min-height: 44px;
+  color: #000000;
+  font-weight: 500;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  
+  @media (min-width: 768px) {
+    padding: 1rem;
+    font-size: 1.1rem;
+  }
 
   &:hover {
     background: ${props => {
       if (props.selected && props.correct) return '#E8F5E9';
       if (props.selected) return '#FFEBEE';
-      return '#f0f0f0';
+      return '#f8f9fa';
     }};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+
+  &:disabled {
+    opacity: ${props => props.selected ? 1 : 0.7};
+    cursor: default;
+    transform: none;
   }
 `;
 
 const ProgressBar = styled.div`
   width: 100%;
-  height: 10px;
+  height: 8px;
   background: #ddd;
   border-radius: 5px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  
+  @media (min-width: 768px) {
+    height: 10px;
+    margin-bottom: 2rem;
+  }
 `;
 
 const Progress = styled.div<{ width: number }>`
@@ -68,33 +115,71 @@ const Progress = styled.div<{ width: number }>`
 const Message = styled.p<{ isError?: boolean }>`
   color: ${props => props.isError ? '#d32f2f' : '#4CAF50'};
   margin: 1rem 0;
-  font-weight: 500;
+  font-weight: bold;
   text-align: center;
+  font-size: 1rem;
+  word-wrap: break-word;
+  background: ${props => props.isError ? '#FFEBEE' : '#E8F5E9'};
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid ${props => props.isError ? '#ffcdd2' : '#c8e6c9'};
+  
+  @media (min-width: 768px) {
+    font-size: 1.1rem;
+  }
 `;
 
 const NextButton = styled.button`
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   background: #4CAF50;
   color: white;
   border: none;
-  border-radius: 5px;
+  border-radius: 8px;
   cursor: pointer;
   margin-top: 1rem;
   width: 100%;
   font-size: 1.1rem;
   transition: all 0.3s ease;
+  min-height: 44px;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+  @media (min-width: 768px) {
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+  }
 
   &:hover {
     background: #45a049;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 `;
 
 const LoadingContainer = styled.div`
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
   background: white;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  
+  @media (min-width: 768px) {
+    padding: 2rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    color: #000000;
+    font-weight: bold;
+    
+    @media (min-width: 768px) {
+      font-size: 1.5rem;
+    }
+  }
 `;
 
 const Quiz: React.FC = () => {
