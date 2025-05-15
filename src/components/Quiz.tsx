@@ -167,6 +167,7 @@ const OptionButton = styled.button`
   word-wrap: break-word;
   display: flex;
   align-items: center;
+  color: #000000;
 
   &:hover {
     background: #e9ecef;
@@ -181,7 +182,7 @@ const OptionButton = styled.button`
 const OptionLabel = styled.span`
   margin-right: 1rem;
   font-weight: bold;
-  color: #6c757d;
+  color: #000000;
 `;
 
 const HintText = styled.p`
@@ -189,6 +190,52 @@ const HintText = styled.p`
   font-size: 0.9rem;
   margin: 0.5rem 0;
   font-style: italic;
+`;
+
+const PasswordContainer = styled.div`
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+`;
+
+const PasswordLabel = styled.label`
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #2C3E50;
+  font-weight: bold;
+`;
+
+const TimerContainer = styled.div`
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  background: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 2px solid ${props => props.timeLeft <= 60 ? '#d32f2f' : '#4CAF50'};
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  z-index: 1000;
+  
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 1rem;
+  }
+`;
+
+const TimerIcon = styled.span`
+  color: ${props => props.timeLeft <= 60 ? '#d32f2f' : '#4CAF50'};
+  font-size: 1.2rem;
+`;
+
+const TimerText = styled.span`
+  font-weight: bold;
+  color: ${props => props.timeLeft <= 60 ? '#d32f2f' : '#2C3E50'};
+  font-size: 1.1rem;
 `;
 
 const Quiz: React.FC = () => {
@@ -203,6 +250,7 @@ const Quiz: React.FC = () => {
   const [categoryScores, setCategoryScores] = useState<Record<string, { correct: number, total: number }>>({});
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
 
   useEffect(() => {
     try {
@@ -250,6 +298,43 @@ const Quiz: React.FC = () => {
       setIsLoading(false);
     }
   }, []);
+
+  // Timer effect
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      // Time's up - end the quiz
+      const finalCategoryScores = Object.entries(categoryScores)
+        .filter(([_, scores]) => scores.total > 0)
+        .reduce((acc, [category, scores]) => {
+          acc[category] = scores;
+          return acc;
+        }, {} as Record<string, { correct: number, total: number }>);
+
+      const scoreMessage = `Time's up!\n\nFinal Score: ${score}/5\n\nCategory Breakdown:\n${
+        Object.entries(finalCategoryScores)
+          .map(([category, scores]) => 
+            `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+          )
+          .join('\n')
+      }`;
+      
+      alert(scoreMessage);
+      navigate('/');
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => prev - 1);
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft, navigate, score, categoryScores]);
+
+  const formatTime = (seconds: number): string => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
   const handleOptionClick = (option: string) => {
     setPassword(option);
@@ -366,6 +451,11 @@ const Quiz: React.FC = () => {
 
   return (
     <QuizContainer>
+      <TimerContainer timeLeft={timeLeft}>
+        <TimerIcon timeLeft={timeLeft}>⏱️</TimerIcon>
+        <TimerText timeLeft={timeLeft}>{formatTime(timeLeft)}</TimerText>
+      </TimerContainer>
+
       {error && <Message isError>{error}</Message>}
       <ProgressBar>
         <Progress width={progress} />
@@ -375,7 +465,7 @@ const Quiz: React.FC = () => {
         Question {currentQuestionIndex + 1}/5: {currentQuestion.question}
       </QuestionText>
 
-      <HintText>Click an option to select your answer:</HintText>
+      <HintText>Click an option to copy it to the password field:</HintText>
 
       <OptionsContainer>
         {currentQuestion.options.map((option, index) => (
@@ -393,14 +483,19 @@ const Quiz: React.FC = () => {
         ))}
       </OptionsContainer>
 
-      <form onSubmit={handleSubmit}>
+      <PasswordContainer>
+        <PasswordLabel>Enter Password:</PasswordLabel>
         <PasswordInput
-          type="hidden"
+          type="text"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          placeholder="Click an option above or type your answer"
           disabled={showResult}
           autoComplete="off"
         />
+      </PasswordContainer>
+
+      <form onSubmit={handleSubmit}>
         <SubmitButton type="submit" disabled={!password || showResult}>
           Submit Answer
         </SubmitButton>
