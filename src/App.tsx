@@ -61,7 +61,7 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router>
+    <Router basename="/quiz-project">
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>
