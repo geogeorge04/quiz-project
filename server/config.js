@@ -1,13 +1,18 @@
 const config = {
-  port: process.env.PORT || 3001,
+  port: process.env.PORT || 3000,
   allowedOrigins: [
     'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'https://geogeorge04.github.io',
-    'https://quiz-app-backend-vpp3.onrender.com',
-    // Allow all during development
-    process.env.NODE_ENV !== 'production' ? '*' : null
-  ].filter(Boolean) // Remove null values
+    'http://localhost:3000',
+    'https://geogeorge04.github.io'
+  ],
+  env: process.env.NODE_ENV || 'development'
 };
+
+// Log config on startup
+console.log('Server Configuration:', {
+  environment: config.env,
+  port: config.port,
+  origins: config.allowedOrigins
+});
 
 module.exports = config; 
