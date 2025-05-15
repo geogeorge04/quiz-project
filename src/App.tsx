@@ -2,7 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Login'; // Assuming Login.tsx is in ./components
 import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./components
+import Admin from './components/Admin';
 import styled from 'styled-components';
+import { db } from './firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -46,8 +49,17 @@ const AppContent = styled.div`
 const AppRoutes: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleStartQuiz = (userInfo: { name: string; email: string; contact: string }) => {
-    console.log('User Info:', userInfo);
+  const handleStartQuiz = async (userInfo: { name: string; email: string; contact: string }) => {
+    try {
+      // Add user data to Firestore
+      await addDoc(collection(db, 'quiz-users'), {
+        ...userInfo,
+        timestamp: serverTimestamp(),
+      });
+      console.log('User data saved successfully');
+    } catch (error) {
+      console.error('Error saving user data:', error);
+    }
     navigate('/quiz');
   };
 
@@ -55,6 +67,7 @@ const AppRoutes: React.FC = () => {
     <Routes>
       <Route path="/" element={<Login onStart={handleStartQuiz} />} />
       <Route path="/quiz" element={<Quiz />} />
+      <Route path="/admin" element={<Admin />} />
     </Routes>
   );
 };
