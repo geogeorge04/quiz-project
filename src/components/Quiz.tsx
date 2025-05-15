@@ -207,10 +207,6 @@ const PasswordLabel = styled.label`
   font-weight: bold;
 `;
 
-interface TimerProps {
-  timeLeft: number;
-}
-
 const TimerContainer = styled.div`
   position: fixed;
   top: 1rem;
