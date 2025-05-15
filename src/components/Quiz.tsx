@@ -207,6 +207,10 @@ const PasswordLabel = styled.label`
   font-weight: bold;
 `;
 
+interface TimerProps {
+  timeLeft: number;
+}
+
 const TimerContainer = styled.div`
   position: fixed;
   top: 1rem;
@@ -215,7 +219,7 @@ const TimerContainer = styled.div`
   padding: 0.75rem 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  border: 2px solid ${props => props.timeLeft <= 60 ? '#d32f2f' : '#4CAF50'};
+  border: 2px solid var(--timer-border-color);
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -228,13 +232,13 @@ const TimerContainer = styled.div`
 `;
 
 const TimerIcon = styled.span`
-  color: ${props => props.timeLeft <= 60 ? '#d32f2f' : '#4CAF50'};
+  color: var(--timer-color);
   font-size: 1.2rem;
 `;
 
 const TimerText = styled.span`
   font-weight: bold;
-  color: ${props => props.timeLeft <= 60 ? '#d32f2f' : '#2C3E50'};
+  color: var(--timer-text-color);
   font-size: 1.1rem;
 `;
 
@@ -451,10 +455,18 @@ const Quiz: React.FC = () => {
 
   return (
     <QuizContainer>
-      <TimerContainer timeLeft={timeLeft}>
-        <TimerIcon timeLeft={timeLeft}>⏱️</TimerIcon>
-        <TimerText timeLeft={timeLeft}>{formatTime(timeLeft)}</TimerText>
-      </TimerContainer>
+      <div
+        style={{
+          '--timer-border-color': timeLeft <= 60 ? '#d32f2f' : '#4CAF50',
+          '--timer-color': timeLeft <= 60 ? '#d32f2f' : '#4CAF50',
+          '--timer-text-color': timeLeft <= 60 ? '#d32f2f' : '#2C3E50'
+        } as React.CSSProperties}
+      >
+        <TimerContainer>
+          <TimerIcon>⏱️</TimerIcon>
+          <TimerText>{formatTime(timeLeft)}</TimerText>
+        </TimerContainer>
+      </div>
 
       {error && <Message isError>{error}</Message>}
       <ProgressBar>
