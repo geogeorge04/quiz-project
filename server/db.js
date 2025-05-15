@@ -5,10 +5,7 @@ const uri = process.env.MONGODB_URI || "mongodb+srv://geogeorge04:<password>@qui
 
 // Create MongoDB client with TLS options
 const client = new MongoClient(uri, {
-    ssl: true,
     tls: true,
-    tlsAllowInvalidCertificates: false,
-    tlsInsecure: false,
     minPoolSize: 1,
     maxPoolSize: 10,
     serverApi: {
