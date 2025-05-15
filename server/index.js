@@ -22,9 +22,20 @@ if (!fs.existsSync(dataFile)) {
   fs.writeFileSync(dataFile, JSON.stringify([]));
 }
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Quiz App Backend API',
+    endpoints: {
+      health: '/health',
+      users: '/api/users'
+    }
+  });
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
 // Get all users
@@ -55,6 +66,14 @@ app.post('/api/users', (req, res) => {
     console.error('Error saving user:', error);
     res.status(500).json({ error: 'Error saving user data' });
   }
+});
+
+// Handle 404s
+app.use((req, res) => {
+  res.status(404).json({ 
+    error: 'Not Found',
+    endpoint: req.originalUrl
+  });
 });
 
 // Add error handling middleware
