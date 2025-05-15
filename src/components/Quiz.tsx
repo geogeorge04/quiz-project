@@ -208,18 +208,49 @@ const Quiz: React.FC = () => {
   const [showResult, setShowResult] = useState(false);
   const [isCorrect, setIsCorrect] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [score, setScore] = useState(0);
+  const [categoryScores, setCategoryScores] = useState<Record<string, { correct: number, total: number }>>({});
 
   useEffect(() => {
     try {
-      // Randomly select 5 questions
-      const shuffled = [...questions].sort(() => 0.5 - Math.random());
-      const selected = shuffled.slice(0, 5);
+      // Randomly select 5 questions, ensuring diversity across categories
+      const categories = Array.from(new Set(questions.map(q => q.category)));
+      let selected: Question[] = [];
+      
+      // First, ensure at least one question from different categories (up to 5)
+      const shuffledCategories = categories.sort(() => 0.5 - Math.random()).slice(0, 5);
+      shuffledCategories.forEach(category => {
+        const categoryQuestions = questions.filter(q => q.category === category);
+        const randomQuestion = categoryQuestions[Math.floor(Math.random() * categoryQuestions.length)];
+        if (randomQuestion) {
+          selected.push(randomQuestion);
+        }
+      });
+      
+      // If we have less than 5 questions, fill the remaining slots randomly
+      const remainingCount = 5 - selected.length;
+      if (remainingCount > 0) {
+        const remainingQuestions = questions.filter(q => !selected.includes(q));
+        const shuffled = [...remainingQuestions].sort(() => 0.5 - Math.random());
+        selected = [...selected, ...shuffled.slice(0, remainingCount)];
+      }
+      
+      // Shuffle the final selection
+      selected = selected.sort(() => 0.5 - Math.random());
       
       if (selected.length === 0) {
         throw new Error('No questions available');
       }
       
       setSelectedQuestions(selected);
+      
+      // Initialize category scores
+      const initialCategoryScores: Record<string, { correct: number, total: number }> = {};
+      categories.forEach(category => {
+        initialCategoryScores[category] = { correct: 0, total: 0 };
+      });
+      setCategoryScores(initialCategoryScores);
+      
     } catch (error) {
       console.error('Error loading questions:', error);
     } finally {
@@ -233,7 +264,23 @@ const Quiz: React.FC = () => {
   const handleOptionSelect = (option: string) => {
     setSelectedOption(option);
     setShowResult(true);
-    setIsCorrect(option === currentQuestion?.correctAnswer);
+    const correct = option === currentQuestion?.correctAnswer;
+    setIsCorrect(correct);
+    
+    if (correct) {
+      setScore(prev => prev + 1);
+    }
+    
+    // Update category scores
+    if (currentQuestion?.category) {
+      setCategoryScores(prev => ({
+        ...prev,
+        [currentQuestion.category]: {
+          correct: prev[currentQuestion.category]?.correct + (correct ? 1 : 0),
+          total: (prev[currentQuestion.category]?.total || 0) + 1
+        }
+      }));
+    }
   };
 
   const handleNextQuestion = () => {
@@ -242,7 +289,16 @@ const Quiz: React.FC = () => {
       setSelectedOption('');
       setShowResult(false);
     } else {
-      alert('Congratulations! You have completed the quiz!');
+      // Show final score with category breakdown
+      const finalScore = `Final Score: ${score}/5\n\nCategory Breakdown:\n${
+        Object.entries(categoryScores)
+          .filter(([_, scores]) => scores.total > 0) // Only show categories that had questions
+          .map(([category, scores]) => 
+            `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+          )
+          .join('\n')
+      }`;
+      alert(finalScore);
       navigate('/');
     }
   };
