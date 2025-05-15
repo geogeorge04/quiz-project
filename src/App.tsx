@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Login'; // Assuming Login.tsx is in ./components
 import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./components
@@ -44,29 +44,44 @@ const AppContent = styled.div`
   }
 `;
 
+const ErrorMessage = styled.div`
+  color: #dc3545;
+  text-align: center;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: #fff;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+`;
+
 // Separate component for the routes to use navigation
 const AppRoutes: React.FC = () => {
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   const handleStartQuiz = async (userInfo: { name: string; email: string; contact: string }) => {
     try {
-      const saved = saveUser(userInfo);
+      setError(null);
+      const saved = await saveUser(userInfo);
       if (!saved) {
         throw new Error('Failed to save user data');
       }
       navigate('/quiz');
     } catch (error) {
       console.error('Error saving user data:', error);
-      alert('There was an error saving your information. Please try again.');
+      setError('There was an error saving your information. Please try again.');
     }
   };
 
   return (
-    <Routes>
-      <Route path="/" element={<Login onStart={handleStartQuiz} />} />
-      <Route path="/quiz" element={<Quiz />} />
-      <Route path="/admin" element={<Admin />} />
-    </Routes>
+    <>
+      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <Routes>
+        <Route path="/" element={<Login onStart={handleStartQuiz} />} />
+        <Route path="/quiz" element={<Quiz />} />
+        <Route path="/admin" element={<Admin />} />
+      </Routes>
+    </>
   );
 };
 

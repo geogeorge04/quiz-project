@@ -73,6 +73,18 @@ const ExportButton = styled.button`
   }
 `;
 
+const LoadingMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+`;
+
+const ErrorMessage = styled.div`
+  text-align: center;
+  padding: 2rem;
+  color: #dc3545;
+`;
+
 interface UserData {
   name: string;
   email: string;
@@ -83,28 +95,34 @@ interface UserData {
 const Admin: React.FC = () => {
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filteredUsers, setFilteredUsers] = useState<UserData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchUsers = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await getUsers();
+      setUsers(data);
+    } catch (err) {
+      setError('Failed to fetch user data. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    // Initial load
-    setUsers(getUsers());
-
-    // Set up interval to check for new data
-    const interval = setInterval(() => {
-      setUsers(getUsers());
-    }, 5000); // Check every 5 seconds
-
+    fetchUsers();
+    // Set up polling interval
+    const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  useEffect(() => {
-    const filtered = users.filter(user => 
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.contact.includes(searchTerm)
-    );
-    setFilteredUsers(filtered);
-  }, [searchTerm, users]);
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.contact.includes(searchTerm)
+  );
 
   const exportToCSV = () => {
     const headers = ['Name', 'Email', 'Contact', 'Timestamp'];
@@ -125,6 +143,24 @@ const Admin: React.FC = () => {
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
+
+  if (loading && users.length === 0) {
+    return (
+      <AdminContainer>
+        <Title>Quiz User Data</Title>
+        <LoadingMessage>Loading user data...</LoadingMessage>
+      </AdminContainer>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminContainer>
+        <Title>Quiz User Data</Title>
+        <ErrorMessage>{error}</ErrorMessage>
+      </AdminContainer>
+    );
+  }
 
   return (
     <AdminContainer>
