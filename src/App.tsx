@@ -62,8 +62,11 @@ const AppRoutes: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // Use the same environment check as vite.config.ts
+  const basename = import.meta.env.VERCEL ? '/' : '/quiz-project';
+  
   return (
-    <Router basename="/quiz-project">
+    <Router basename={basename}>
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>
