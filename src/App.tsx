@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Login from './components/Login'; // Assuming Login.tsx is in ./components
 import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./components
 import Admin from './components/Admin';
@@ -100,7 +100,7 @@ const AppRoutes: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <Router basename="/quiz-project">
+    <Router>
       <AppContainer>
         <Title>Interactive Quiz Challenge</Title>
         <AppContent>
