@@ -114,18 +114,11 @@ const Admin: React.FC = () => {
   };
 
   useEffect(() => {
-    // Check if user is authenticated
-    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
-    if (!isAuthenticated) {
-      navigate('/admin-auth');
-      return;
-    }
-
     fetchUsers();
     // Set up polling interval
     const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
-  }, [navigate]);
+  }, []);
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
