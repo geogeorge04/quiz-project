@@ -104,9 +104,19 @@ const Admin: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await getUsers();
+      console.log('Fetching users from:', `${API_URL}/users`);
+      const response = await fetch(`${API_URL}/users`);
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Error response:', errorData);
+        throw new Error(errorData.error || 'Failed to fetch users');
+      }
+      const data = await response.json();
+      console.log('Fetched users:', data);
       setUsers(data);
     } catch (err) {
+      console.error('Detailed error:', err);
       setError('Failed to fetch user data. Please try again later.');
     } finally {
       setLoading(false);
