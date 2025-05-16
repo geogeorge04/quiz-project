@@ -3,6 +3,11 @@ import styled from 'styled-components';
 import { getUsers } from '../utils/storage';
 import { useNavigate } from 'react-router-dom';
 
+// Import API_URL from storage
+const API_URL = window.location.hostname === 'localhost' 
+  ? 'http://localhost:3001/api'
+  : 'https://quiz-app-backend-vpp3.onrender.com/api';
+
 const AdminContainer = styled.div`
   padding: 2rem;
   background: white;
