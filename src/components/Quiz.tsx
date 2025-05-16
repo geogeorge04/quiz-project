@@ -337,7 +337,6 @@ const Quiz: React.FC = () => {
   };
 
   const handleOptionClick = (option: string) => {
-    setPassword(option);
     setSelectedOption(option);
   };
 
@@ -473,7 +472,7 @@ const Quiz: React.FC = () => {
         Question {currentQuestionIndex + 1}/5: {currentQuestion.question}
       </QuestionText>
 
-      <HintText>Click an option to copy it to the password field:</HintText>
+      <HintText>Select an option:</HintText>
 
       <OptionsContainer>
         {currentQuestion.options.map((option, index) => (
