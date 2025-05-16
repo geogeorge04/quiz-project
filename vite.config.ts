@@ -17,5 +17,16 @@ export default defineConfig({
   server: {
     port: 5173,
     open: true
+  },
+  resolve: {
+    alias: {
+      '@': '/src'
+    }
+  },
+  // Add history fallback for GitHub Pages
+  preview: {
+    port: 5173,
+    strictPort: true,
+    host: true
   }
 })
