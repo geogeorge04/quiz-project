@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { getUsers } from '../utils/storage';
-import { useNavigate } from 'react-router-dom';
 
 // Import API_URL from storage
 const API_URL = window.location.hostname === 'localhost' 
@@ -99,7 +97,6 @@ interface UserData {
 }
 
 const Admin: React.FC = () => {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
