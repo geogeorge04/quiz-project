@@ -1,11 +1,11 @@
 const { MongoClient } = require('mongodb');
 
-// Use environment variable for MongoDB connection
-const uri = process.env.MONGODB_URI || "mongodb+srv://geogeorge04:<password>@quiz.rs7jx0m.mongodb.net/?retryWrites=true&w=majority";
+if (!process.env.MONGODB_URI) {
+    console.error('MONGODB_URI environment variable is not set');
+    process.exit(1);
+}
 
-// Create MongoDB client with TLS options
-const client = new MongoClient(uri, {
-    tls: true,
+const client = new MongoClient(process.env.MONGODB_URI, {
     minPoolSize: 1,
     maxPoolSize: 10,
     serverApi: {
@@ -20,11 +20,11 @@ let db;
 async function connectToDatabase() {
     try {
         await client.connect();
-        console.log('Connected to MongoDB');
-        db = client.db('quiz-app');
+        console.log('Connected to MongoDB Atlas successfully');
+        db = client.db();
         return db;
     } catch (error) {
-        console.error('MongoDB connection error:', error);
+        console.error('Failed to connect to MongoDB:', error.message);
         throw error;
     }
 }

@@ -250,7 +250,7 @@ const Quiz: React.FC = () => {
   const [categoryScores, setCategoryScores] = useState<Record<string, { correct: number, total: number }>>({});
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(180); // 3 minutes in seconds
 
   useEffect(() => {
     try {
