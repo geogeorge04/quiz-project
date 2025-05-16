@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { getUsers } from '../utils/storage';
+import { useNavigate } from 'react-router-dom';
 
 const AdminContainer = styled.div`
   padding: 2rem;
@@ -93,6 +94,7 @@ interface UserData {
 }
 
 const Admin: React.FC = () => {
+  const navigate = useNavigate();
   const [users, setUsers] = useState<UserData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
@@ -112,11 +114,18 @@ const Admin: React.FC = () => {
   };
 
   useEffect(() => {
+    // Check if user is authenticated
+    const isAuthenticated = localStorage.getItem('adminAuth') === 'true';
+    if (!isAuthenticated) {
+      navigate('/admin-auth');
+      return;
+    }
+
     fetchUsers();
     // Set up polling interval
     const interval = setInterval(fetchUsers, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [navigate]);
 
   const filteredUsers = users.filter(user => 
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

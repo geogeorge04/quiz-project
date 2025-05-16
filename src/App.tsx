@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-route
 import Login from './components/Login'; // Assuming Login.tsx is in ./components
 import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./components
 import Admin from './components/Admin';
+import AdminAuth from './components/AdminAuth';
 import styled from 'styled-components';
 import { saveUser } from './utils/storage';
 
@@ -92,6 +93,7 @@ const AppRoutes: React.FC = () => {
       <Routes>
         <Route path="/" element={<Login onStart={handleStartQuiz} />} />
         <Route path="/quiz" element={<Quiz />} />
+        <Route path="/admin-auth" element={<AdminAuth />} />
         <Route path="/admin" element={<Admin />} />
       </Routes>
     </>
