@@ -89,6 +89,19 @@ app.post('/api/scores', async (req, res) => {
   }
 });
 
+// Get all quiz scores
+app.get('/api/scores', async (req, res) => {
+  try {
+    const db = getDb();
+    const scores = await db.collection('scores').find().toArray();
+    console.log(`Retrieved ${scores.length} scores`);
+    res.json(scores);
+  } catch (error) {
+    console.error('Error reading scores:', error);
+    res.status(500).json({ error: 'Error reading scores data', details: error.message });
+  }
+});
+
 // Handle 404s
 app.use((req, res) => {
   console.log(`404 - Not Found: ${req.originalUrl}`);
