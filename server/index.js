@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('./config');
-const { connectToDatabase, getDb } = require('./db');
+// Removed: const { connectToDatabase, getDb } = require('./db');
+const { initDb, addUser, getUsers, addScore, getScores, getUsersWithScores } = require('./db-postgres');
 
 const app = express();
 
@@ -40,12 +41,13 @@ app.get('/health', (req, res) => {
   });
 });
 
+// Initialize PostgreSQL users table
+initDb();
+
 // Get all users
 app.get('/api/users', async (req, res) => {
   try {
-    const db = getDb();
-    const users = await db.collection('users').find().toArray();
-    console.log(`Retrieved ${users.length} users`);
+    const users = await getUsers();
     res.json(users);
   } catch (error) {
     console.error('Error reading users:', error);
@@ -57,13 +59,8 @@ app.get('/api/users', async (req, res) => {
 app.post('/api/users', async (req, res) => {
   try {
     console.log('Received user data:', req.body);
-    const db = getDb();
-    const newUser = {
-      ...req.body,
-      timestamp: new Date().toISOString()
-    };
-    const result = await db.collection('users').insertOne(newUser);
-    console.log('User saved successfully:', result.insertedId);
+    const newUser = await addUser(req.body);
+    console.log('User saved successfully:', newUser.id);
     res.json(newUser);
   } catch (error) {
     console.error('Error saving user:', error);
@@ -71,34 +68,33 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-// Add quiz score
+// Add a new score
 app.post('/api/scores', async (req, res) => {
   try {
-    console.log('Received score data:', req.body);
-    const db = getDb();
-    const scoreData = {
-      ...req.body,
-      timestamp: new Date().toISOString()
-    };
-    const result = await db.collection('scores').insertOne(scoreData);
-    console.log('Score saved successfully:', result.insertedId);
-    res.json(scoreData);
+    const newScore = await addScore(req.body);
+    res.json(newScore);
   } catch (error) {
-    console.error('Error saving score:', error);
     res.status(500).json({ error: 'Error saving score data', details: error.message });
   }
 });
 
-// Get all quiz scores
+// Get all scores (with user info)
 app.get('/api/scores', async (req, res) => {
   try {
-    const db = getDb();
-    const scores = await db.collection('scores').find().toArray();
-    console.log(`Retrieved ${scores.length} scores`);
+    const scores = await getScores();
     res.json(scores);
   } catch (error) {
-    console.error('Error reading scores:', error);
     res.status(500).json({ error: 'Error reading scores data', details: error.message });
+  }
+});
+
+// Get all users with their scores
+app.get('/api/users-with-scores', async (req, res) => {
+  try {
+    const users = await getUsersWithScores();
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: 'Error reading users with scores', details: error.message });
   }
 });
 
@@ -117,33 +113,26 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Connect to MongoDB before starting the server
-connectToDatabase()
-  .then(() => {
-    const server = app.listen(config.port, () => {
-      console.log(`Server running at http://localhost:${config.port}`);
-      console.log('Environment:', process.env.NODE_ENV);
-      console.log('Allowed origins:', config.allowedOrigins);
-    });
+// Start the server (no MongoDB connection required)
+const server = app.listen(config.port, () => {
+  console.log(`Server running at http://localhost:${config.port}`);
+  console.log('Environment:', process.env.NODE_ENV);
+  console.log('Allowed origins:', config.allowedOrigins);
+});
 
-    // Handle graceful shutdown
-    process.on('SIGTERM', () => {
-      console.log('SIGTERM received. Shutting down gracefully...');
-      server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-      });
-    });
+// Handle graceful shutdown
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+});
 
-    process.on('SIGINT', () => {
-      console.log('SIGINT received. Shutting down gracefully...');
-      server.close(() => {
-        console.log('Server closed');
-        process.exit(0);
-      });
-    });
-  })
-  .catch(error => {
-    console.error('Failed to connect to MongoDB:', error);
-    process.exit(1);
-  }); 
+process.on('SIGINT', () => {
+  console.log('SIGINT received. Shutting down gracefully...');
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
+}); 
