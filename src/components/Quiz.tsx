@@ -310,6 +310,29 @@ const Quiz: React.FC = () => {
           return acc;
         }, {} as Record<string, { correct: number, total: number }>);
 
+      // Save score to database on timeout
+      (async () => {
+        try {
+          const userData = localStorage.getItem('quizUserData');
+          if (!userData) {
+            throw new Error('User data not found');
+          }
+          const { name, _id } = JSON.parse(userData);
+          const saved = await saveScore({
+            userId: _id,
+            name,
+            totalScore: score,
+            categoryScores: finalCategoryScores
+          });
+          if (!saved) {
+            throw new Error('Failed to save score');
+          }
+        } catch (err) {
+          console.error('Error saving score on timeout:', err);
+          setError('Failed to save your score, but the quiz is complete.');
+        }
+      })();
+
       const scoreMessage = `Time's up!\n\nFinal Score: ${score}/5\n\nCategory Breakdown:\n${
         Object.entries(finalCategoryScores)
           .map(([category, scores]) => 
