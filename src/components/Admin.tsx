@@ -89,61 +89,55 @@ const ErrorMessage = styled.div`
   color: #dc3545;
 `;
 
-interface UserData {
+interface ScoreData {
+  userId: string;
   name: string;
-  email: string;
-  contact: string;
+  totalScore: number;
+  categoryScores: Record<string, { correct: number; total: number }>;
   timestamp: string;
 }
 
 const Admin: React.FC = () => {
-  const [users, setUsers] = useState<UserData[]>([]);
+  const [scores, setScores] = useState<ScoreData[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = async () => {
+  const fetchScores = async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('Fetching users from:', `${API_URL}/users`);
-      const response = await fetch(`${API_URL}/users`);
-      console.log('Response status:', response.status);
+      const response = await fetch(`${API_URL}/scores`);
       if (!response.ok) {
         const errorData = await response.json();
-        console.error('Error response:', errorData);
-        throw new Error(errorData.error || 'Failed to fetch users');
+        throw new Error(errorData.error || 'Failed to fetch scores');
       }
       const data = await response.json();
-      console.log('Fetched users:', data);
-      setUsers(data);
+      setScores(data);
     } catch (err) {
-      console.error('Detailed error:', err);
-      setError('Failed to fetch user data. Please try again later.');
+      setError('Failed to fetch score data. Please try again later.');
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers();
-    // Set up polling interval
-    const interval = setInterval(fetchUsers, 5000);
+    fetchScores();
+    const interval = setInterval(fetchScores, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const filteredUsers = users.filter(user => 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.contact.includes(searchTerm)
+  const filteredScores = scores.filter(score => 
+    score.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    score.userId?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const exportToCSV = () => {
-    const headers = ['Name', 'Email', 'Contact', 'Timestamp'];
+    const headers = ['Name', 'Score', 'Timestamp'];
     const csvData = [
       headers.join(','),
-      ...filteredUsers.map(user => 
-        [user.name, user.email, user.contact, new Date(user.timestamp).toLocaleString()].join(',')
+      ...filteredScores.map(score => 
+        [score.name, score.totalScore, new Date(score.timestamp).toLocaleString()].join(',')
       )
     ].join('\n');
 
@@ -151,18 +145,18 @@ const Admin: React.FC = () => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `quiz-users-${new Date().toISOString().split('T')[0]}.csv`;
+    a.download = `quiz-scores-${new Date().toISOString().split('T')[0]}.csv`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
   };
 
-  if (loading && users.length === 0) {
+  if (loading && scores.length === 0) {
     return (
       <AdminContainer>
-        <Title>Quiz User Data</Title>
-        <LoadingMessage>Loading user data...</LoadingMessage>
+        <Title>Quiz Scores</Title>
+        <LoadingMessage>Loading score data...</LoadingMessage>
       </AdminContainer>
     );
   }
@@ -170,7 +164,7 @@ const Admin: React.FC = () => {
   if (error) {
     return (
       <AdminContainer>
-        <Title>Quiz User Data</Title>
+        <Title>Quiz Scores</Title>
         <ErrorMessage>{error}</ErrorMessage>
       </AdminContainer>
     );
@@ -178,12 +172,11 @@ const Admin: React.FC = () => {
 
   return (
     <AdminContainer>
-      <Title>Quiz User Data</Title>
-      
+      <Title>Quiz Scores</Title>
       <SearchContainer>
         <SearchInput 
           type="text"
-          placeholder="Search by name, email, or contact..."
+          placeholder="Search by name or user ID..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
@@ -191,29 +184,26 @@ const Admin: React.FC = () => {
           Export to CSV
         </ExportButton>
       </SearchContainer>
-
       <Table>
         <thead>
           <tr>
             <th>Name</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>Login Time</th>
+            <th>Score</th>
+            <th>Timestamp</th>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map((user, index) => (
+          {filteredScores.map((score, index) => (
             <tr key={index}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.contact}</td>
-              <td>{new Date(user.timestamp).toLocaleString()}</td>
+              <td>{score.name}</td>
+              <td>{score.totalScore}</td>
+              <td>{new Date(score.timestamp).toLocaleString()}</td>
             </tr>
           ))}
-          {filteredUsers.length === 0 && (
+          {filteredScores.length === 0 && (
             <tr>
-              <td colSpan={4} style={{ textAlign: 'center', padding: '2rem' }}>
-                {searchTerm ? 'No matching users found' : 'No users yet'}
+              <td colSpan={3} style={{ textAlign: 'center', padding: '2rem' }}>
+                {searchTerm ? 'No matching scores found' : 'No scores yet'}
               </td>
             </tr>
           )}
