@@ -131,7 +131,7 @@ const Scores: React.FC = () => {
                 <td>{score.name}</td>
                 <td>{score.email}</td>
                 <td>{score.contact}</td>
-                <td>{score.total_score}</td>
+                <td>{score.total_score !== undefined && score.total_score !== null ? score.total_score : 0}</td>
                 <td>{new Date(score.timestamp).toLocaleString()}</td>
               </tr>
             ))}
