@@ -195,8 +195,6 @@ const Admin: React.FC = () => {
             <th>Contact</th>
             <th>Latest Score</th>
             <th>Total Score</th>
-            <th>Category Breakdown</th>
-            <th>Registered</th>
           </tr>
         </thead>
         <tbody>
@@ -214,20 +212,12 @@ const Admin: React.FC = () => {
                 <td>
                   {latestScore ? totalScore : '-'}
                 </td>
-                <td>
-                  {latestScore ? (
-                    <CategoryScores>
-                      {formatCategoryScores(latestScore.category_scores)}
-                    </CategoryScores>
-                  ) : '-'}
-                </td>
-                <td>{new Date(user.timestamp).toLocaleString()}</td>
               </tr>
             );
           })}
           {filteredUsers.length === 0 && (
             <tr>
-              <td colSpan={7} style={{ textAlign: 'center', padding: '2rem' }}>
+              <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
                 {searchTerm ? 'No matching users found' : 'No users yet'}
               </td>
             </tr>
