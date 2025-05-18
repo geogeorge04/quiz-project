@@ -202,7 +202,6 @@ const Admin: React.FC = () => {
         <tbody>
           {filteredUsers.map((user, index) => {
             const latestScore = user.scores[0]; // Scores are ordered by timestamp DESC
-            const totalAttempts = user.scores.length * 5; // Total number of questions attempted
             const totalScore = user.scores.reduce((sum, score) => sum + score.total_score, 0);
             return (
               <tr key={index}>
@@ -213,7 +212,7 @@ const Admin: React.FC = () => {
                   {latestScore ? `${latestScore.total_score}/5` : 'No attempts'}
                 </td>
                 <td>
-                  {totalAttempts > 0 ? `${totalScore}/${totalAttempts}` : '-'}
+                  {latestScore ? totalScore : '-'}
                 </td>
                 <td>
                   {latestScore ? (
