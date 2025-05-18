@@ -373,14 +373,15 @@ const Quiz: React.FC = () => {
     setIsCorrect(correct);
     
     if (correct) {
-      setScore(prev => prev + 1);
+      const newScore = score + 1;
+      setScore(newScore);
       
       // Update category scores
       if (currentQuestion?.category) {
         setCategoryScores(prev => ({
           ...prev,
           [currentQuestion.category]: {
-            correct: prev[currentQuestion.category]?.correct + 1,
+            correct: (prev[currentQuestion.category]?.correct || 0) + 1,
             total: (prev[currentQuestion.category]?.total || 0) + 1
           }
         }));
@@ -398,52 +399,68 @@ const Quiz: React.FC = () => {
           const finalCategoryScores = Object.entries(categoryScores)
             .filter(([_, scores]) => scores.total > 0)
             .reduce((acc, [category, scores]) => {
-              const updatedScores = category === currentQuestion.category 
-                ? { correct: scores.correct + 1, total: scores.total + 1 }
-                : scores;
-              acc[category] = updatedScores;
+              acc[category] = {
+                correct: scores.correct + (category === currentQuestion.category ? 1 : 0),
+                total: scores.total + (category === currentQuestion.category ? 1 : 0)
+              };
               return acc;
             }, {} as Record<string, { correct: number, total: number }>);
 
-          const finalScore = score + 1;
-          
-          // Save score to database
-          try {
-            const userData = localStorage.getItem('quizUserData');
-            if (!userData) {
-              throw new Error('User data not found');
-            }
-            
-            const { name, _id } = JSON.parse(userData);
-            const saved = await saveScore({
-              userId: _id,
-              name,
-              totalScore: finalScore,
-              categoryScores: finalCategoryScores
-            });
-            
-            if (!saved) {
-              throw new Error('Failed to save score');
-            }
-          } catch (err) {
-            console.error('Error saving score:', err);
-            setError('Failed to save your score, but the quiz is complete.');
-          }
+            // Save score to database
+            try {
+              const userData = localStorage.getItem('quizUserData');
+              if (!userData) {
+                throw new Error('User data not found');
+              }
+              
+              const parsedData = JSON.parse(userData);
+              const userId = parsedData._id || parsedData.id;
+              const name = parsedData.name;
+              
+              if (!userId) {
+                throw new Error('User ID not found');
+              }
 
-          // Show final score with category breakdown
-          const scoreMessage = `Final Score: ${finalScore}/5\n\nCategory Breakdown:\n${
-            Object.entries(finalCategoryScores)
-              .map(([category, scores]) => 
-                `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
-              )
-              .join('\n')
-          }`;
-          
-          alert(scoreMessage);
-          navigate('/');
+              const saved = await saveScore({
+                userId: userId.toString(),
+                name,
+                totalScore: newScore,
+                categoryScores: finalCategoryScores
+              });
+              
+              if (!saved) {
+                throw new Error('Failed to save score');
+              }
+
+              // Show final score with category breakdown
+              const scoreMessage = `Final Score: ${newScore}/5\n\nCategory Breakdown:\n${
+                Object.entries(finalCategoryScores)
+                  .map(([category, scores]) => 
+                    `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+                  )
+                  .join('\n')
+              }`;
+              
+              alert(scoreMessage);
+              navigate('/scores');
+            } catch (err) {
+              console.error('Error saving score:', err);
+              setError('Failed to save your score. Please try again.');
+            }
         }
       }, 1500);
     } else {
+      // Update category scores for incorrect answer
+      if (currentQuestion?.category) {
+        setCategoryScores(prev => ({
+          ...prev,
+          [currentQuestion.category]: {
+            correct: prev[currentQuestion.category]?.correct || 0,
+            total: (prev[currentQuestion.category]?.total || 0) + 1
+          }
+        }));
+      }
+      
       // End session on wrong password
       setTimeout(() => {
         alert('Incorrect answer. Quiz session ended.');

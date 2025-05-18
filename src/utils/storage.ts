@@ -1,4 +1,4 @@
-interface UserData {
+export interface UserData {
   name: string;
   email: string;
   contact: string;
@@ -13,10 +13,10 @@ export interface ScoreData {
 }
 
 const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001/api'
+  ? 'http://localhost:3000/api'
   : 'https://quiz-app-backend-vpp3.onrender.com/api';
 
-export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<boolean> => {
+export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<{ id: string } | false> => {
   try {
     const response = await fetch(`${API_URL}/users`, {
       method: 'POST',
@@ -31,7 +31,14 @@ export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<b
       throw new Error(errorData.error || 'Failed to save user data');
     }
     
-    return true;
+    const data = await response.json();
+    // Store user data in localStorage with the ID from the server
+    localStorage.setItem('quizUserData', JSON.stringify({
+      ...userData,
+      id: data.id
+    }));
+    
+    return { id: data.id };
   } catch (error) {
     console.error('Error saving user:', error);
     return false;
@@ -59,7 +66,12 @@ export const saveScore = async (scoreData: ScoreData): Promise<boolean> => {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(scoreData)
+      body: JSON.stringify({
+        user_id: scoreData.userId,
+        total_score: scoreData.totalScore,
+        category_scores: scoreData.categoryScores,
+        name: scoreData.name
+      })
     });
     
     if (!response.ok) {
