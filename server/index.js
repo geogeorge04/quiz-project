@@ -42,7 +42,7 @@ app.get('/health', (req, res) => {
 });
 
 // Initialize PostgreSQL users table
-initDb();
+initDb().catch(console.error);
 
 // Get all users
 app.get('/api/users', async (req, res) => {
@@ -68,23 +68,44 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-// Add a new score
-app.post('/api/scores', async (req, res) => {
-  try {
-    const newScore = await addScore(req.body);
-    res.json(newScore);
-  } catch (error) {
-    res.status(500).json({ error: 'Error saving score data', details: error.message });
-  }
-});
-
-// Get all scores (with user info)
+// Get all scores
 app.get('/api/scores', async (req, res) => {
   try {
     const scores = await getScores();
     res.json(scores);
   } catch (error) {
+    console.error('Error reading scores:', error);
     res.status(500).json({ error: 'Error reading scores data', details: error.message });
+  }
+});
+
+// Add a new score
+app.post('/api/scores', async (req, res) => {
+  try {
+    console.log('Received score data:', req.body);
+    const { user_id, name, total_score, category_scores } = req.body;
+    
+    // Get user details from the database
+    const userResult = await pool.query('SELECT * FROM users WHERE id = $1', [user_id]);
+    if (userResult.rows.length === 0) {
+      throw new Error('User not found');
+    }
+    const user = userResult.rows[0];
+
+    const newScore = await addScore({
+      user_id,
+      name,
+      email: user.email,
+      contact: user.contact,
+      total_score,
+      category_scores
+    });
+    
+    console.log('Score saved successfully:', newScore.id);
+    res.json(newScore);
+  } catch (error) {
+    console.error('Error saving score:', error);
+    res.status(500).json({ error: 'Error saving score data', details: error.message });
   }
 });
 
@@ -94,6 +115,7 @@ app.get('/api/users-with-scores', async (req, res) => {
     const users = await getUsersWithScores();
     res.json(users);
   } catch (error) {
+    console.error('Error reading users with scores:', error);
     res.status(500).json({ error: 'Error reading users with scores', details: error.message });
   }
 });
@@ -115,6 +137,7 @@ app.use((err, req, res, next) => {
 
 // Start the server (no MongoDB connection required)
 const server = app.listen(config.port, () => {
+  console.log('Server Configuration:', config);
   console.log(`Server running at http://localhost:${config.port}`);
   console.log('Environment:', process.env.NODE_ENV);
   console.log('Allowed origins:', config.allowedOrigins);

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
 const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001/api'
+  ? 'http://localhost:3000/api'
   : 'https://quiz-app-backend-vpp3.onrender.com/api';
 
 const Container = styled.div`
@@ -66,6 +66,12 @@ const ErrorMessage = styled.div`
   color: #dc3545;
 `;
 
+const CategoryScores = styled.div`
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+  color: #666;
+`;
+
 interface Score {
   id: number;
   user_id: number;
@@ -106,10 +112,18 @@ const Scores: React.FC = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const formatCategoryScores = (categoryScores: Record<string, { correct: number; total: number }>) => {
+    return Object.entries(categoryScores)
+      .map(([category, scores]) => 
+        `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+      )
+      .join(' | ');
+  };
+
   return (
     <Container>
-      <BackButton to="/admin">Back to Users</BackButton>
-      <Title>All Quiz Scores</Title>
+      <BackButton to="/">Back to Home</BackButton>
+      <Title>Quiz Scores</Title>
       {loading ? (
         <LoadingMessage>Loading score data...</LoadingMessage>
       ) : error ? (
@@ -122,7 +136,8 @@ const Scores: React.FC = () => {
               <th>Email</th>
               <th>Contact</th>
               <th>Score</th>
-              <th>Timestamp</th>
+              <th>Category Breakdown</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
@@ -131,13 +146,18 @@ const Scores: React.FC = () => {
                 <td>{score.name}</td>
                 <td>{score.email}</td>
                 <td>{score.contact}</td>
-                <td>{score.total_score !== undefined && score.total_score !== null ? score.total_score : 0}</td>
+                <td>{score.total_score}/5</td>
+                <td>
+                  <CategoryScores>
+                    {formatCategoryScores(score.category_scores)}
+                  </CategoryScores>
+                </td>
                 <td>{new Date(score.timestamp).toLocaleString()}</td>
               </tr>
             ))}
             {scores.length === 0 && (
               <tr>
-                <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+                <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
                   No scores yet
                 </td>
               </tr>
