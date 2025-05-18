@@ -90,12 +90,6 @@ const ErrorMessage = styled.div`
   color: #dc3545;
 `;
 
-const CategoryScores = styled.div`
-  margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: #666;
-`;
-
 interface Score {
   id: number;
   total_score: number;
@@ -146,14 +140,6 @@ const Admin: React.FC = () => {
     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const formatCategoryScores = (categoryScores: Record<string, { correct: number; total: number }>) => {
-    return Object.entries(categoryScores)
-      .map(([category, scores]) => 
-        `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
-      )
-      .join(' | ');
-  };
 
   if (loading && users.length === 0) {
     return (
