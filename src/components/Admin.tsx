@@ -89,31 +89,40 @@ const ErrorMessage = styled.div`
   color: #dc3545;
 `;
 
-interface ScoreData {
-  userId: string;
-  name: string;
-  totalScore: number;
-  categoryScores: Record<string, { correct: number; total: number }>;
+interface Score {
+  id: number;
+  user_id: number;
+  total_score: number;
+  category_scores: Record<string, { correct: number; total: number }>;
   timestamp: string;
 }
 
+interface UserWithScores {
+  id: number;
+  name: string;
+  email: string;
+  contact: string;
+  timestamp: string;
+  scores: Score[];
+}
+
 const Admin: React.FC = () => {
-  const [scores, setScores] = useState<ScoreData[]>([]);
+  const [users, setUsers] = useState<UserWithScores[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchScores = async () => {
+  const fetchUsersWithScores = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/scores`);
+      const response = await fetch(`${API_URL}/users-with-scores`);
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to fetch scores');
+        throw new Error(errorData.error || 'Failed to fetch users with scores');
       }
       const data = await response.json();
-      setScores(data);
+      setUsers(data);
     } catch (err) {
       setError('Failed to fetch score data. Please try again later.');
     } finally {
@@ -122,23 +131,30 @@ const Admin: React.FC = () => {
   };
 
   useEffect(() => {
-    fetchScores();
-    const interval = setInterval(fetchScores, 5000);
+    fetchUsersWithScores();
+    const interval = setInterval(fetchUsersWithScores, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  const filteredScores = scores.filter(score => 
-    score.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    score.userId?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(user => 
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const exportToCSV = () => {
     const headers = ['Name', 'Score', 'Timestamp'];
     const csvData = [
       headers.join(','),
-      ...filteredScores.map(score => 
-        [score.name, score.totalScore, new Date(score.timestamp).toLocaleString()].join(',')
-      )
+      ...filteredUsers.map(user => {
+        const latestScore = user.scores && user.scores.length > 0
+          ? user.scores.reduce((a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b)
+          : null;
+        return [
+          user.name,
+          latestScore ? latestScore.total_score : '',
+          latestScore ? new Date(latestScore.timestamp).toLocaleString() : ''
+        ].join(',');
+      })
     ].join('\n');
 
     const blob = new Blob([csvData], { type: 'text/csv' });
@@ -152,7 +168,7 @@ const Admin: React.FC = () => {
     window.URL.revokeObjectURL(url);
   };
 
-  if (loading && scores.length === 0) {
+  if (loading && users.length === 0) {
     return (
       <AdminContainer>
         <Title>Quiz Scores</Title>
@@ -193,17 +209,22 @@ const Admin: React.FC = () => {
           </tr>
         </thead>
         <tbody>
-          {filteredScores.map((score, index) => (
-            <tr key={index}>
-              <td>{score.name}</td>
-              <td>{score.totalScore}</td>
-              <td>{new Date(score.timestamp).toLocaleString()}</td>
-            </tr>
-          ))}
-          {filteredScores.length === 0 && (
+          {filteredUsers.map((user, index) => {
+            const latestScore = user.scores && user.scores.length > 0
+              ? user.scores.reduce((a, b) => new Date(a.timestamp) > new Date(b.timestamp) ? a : b)
+              : null;
+            return (
+              <tr key={index}>
+                <td>{user.name}</td>
+                <td>{latestScore ? latestScore.total_score : ''}</td>
+                <td>{latestScore ? new Date(latestScore.timestamp).toLocaleString() : ''}</td>
+              </tr>
+            );
+          })}
+          {filteredUsers.length === 0 && (
             <tr>
               <td colSpan={3} style={{ textAlign: 'center', padding: '2rem' }}>
-                {searchTerm ? 'No matching scores found' : 'No scores yet'}
+                {searchTerm ? 'No matching users found' : 'No scores yet'}
               </td>
             </tr>
           )}
