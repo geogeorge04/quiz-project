@@ -5,6 +5,7 @@ import Quiz from './components/Quiz';     // Assuming Quiz.tsx is in ./component
 import Admin from './components/Admin';
 import styled from 'styled-components';
 import { saveUser } from './utils/storage';
+import Scores from './components/Scores';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -93,6 +94,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/" element={<Login onStart={handleStartQuiz} />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/scores" element={<Scores />} />
       </Routes>
     </>
   );
