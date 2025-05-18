@@ -519,7 +519,7 @@ const Quiz: React.FC = () => {
           type="text"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Click an option above or type your answer"
+          placeholder="Type your answer"
           disabled={showResult}
           autoComplete="off"
         />
