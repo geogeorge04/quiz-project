@@ -6,6 +6,7 @@ import Admin from './components/Admin';
 import styled from 'styled-components';
 import { saveUser } from './utils/storage';
 import Scores from './components/Scores';
+import Instructions from './components/Instructions';
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -91,7 +92,8 @@ const AppRoutes: React.FC = () => {
     <>
       {error && <ErrorMessage>{error}</ErrorMessage>}
       <Routes>
-        <Route path="/" element={<Login onStart={handleStartQuiz} />} />
+        <Route path="/" element={<Instructions />} />
+        <Route path="/login" element={<Login onStart={handleStartQuiz} />} />
         <Route path="/quiz" element={<Quiz />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/scores" element={<Scores />} />
