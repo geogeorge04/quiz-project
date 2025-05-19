@@ -1,8 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const config = require('./config');
-// Removed: const { connectToDatabase, getDb } = require('./db');
-const { initDb, addUser, getUsers, addScore, getScores, getUsersWithScores } = require('./db-postgres');
+const { createUser, findUser, saveScore, getScores } = require('./db');
 
 const app = express();
 
@@ -41,26 +40,18 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Initialize PostgreSQL users table
-initDb();
-
-// Get all users
-app.get('/api/users', async (req, res) => {
-  try {
-    const users = await getUsers();
-    res.json(users);
-  } catch (error) {
-    console.error('Error reading users:', error);
-    res.status(500).json({ error: 'Error reading users data', details: error.message });
-  }
-});
-
 // Add new user
 app.post('/api/users', async (req, res) => {
   try {
     console.log('Received user data:', req.body);
-    const newUser = await addUser(req.body);
-    console.log('User saved successfully:', newUser.id);
+    // Check if user exists
+    const existingUser = await findUser({ name: req.body.name });
+    if (existingUser) {
+      return res.json(existingUser);
+    }
+    // Create new user if doesn't exist
+    const newUser = await createUser(req.body);
+    console.log('User saved successfully:', newUser._id);
     res.json(newUser);
   } catch (error) {
     console.error('Error saving user:', error);
@@ -68,33 +59,27 @@ app.post('/api/users', async (req, res) => {
   }
 });
 
-// Add a new score
-app.post('/api/scores', async (req, res) => {
-  try {
-    const newScore = await addScore(req.body);
-    res.json(newScore);
-  } catch (error) {
-    res.status(500).json({ error: 'Error saving score data', details: error.message });
-  }
-});
-
-// Get all scores (with user info)
+// Get all scores
 app.get('/api/scores', async (req, res) => {
   try {
     const scores = await getScores();
     res.json(scores);
   } catch (error) {
+    console.error('Error reading scores:', error);
     res.status(500).json({ error: 'Error reading scores data', details: error.message });
   }
 });
 
-// Get all users with their scores
-app.get('/api/users-with-scores', async (req, res) => {
+// Add a new score
+app.post('/api/scores', async (req, res) => {
   try {
-    const users = await getUsersWithScores();
-    res.json(users);
+    console.log('Received score data:', req.body);
+    const newScore = await saveScore(req.body);
+    console.log('Score saved successfully:', newScore._id);
+    res.json(newScore);
   } catch (error) {
-    res.status(500).json({ error: 'Error reading users with scores', details: error.message });
+    console.error('Error saving score:', error);
+    res.status(500).json({ error: 'Error saving score data', details: error.message });
   }
 });
 
@@ -113,8 +98,9 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start the server (no MongoDB connection required)
+// Start the server
 const server = app.listen(config.port, () => {
+  console.log('Server Configuration:', config);
   console.log(`Server running at http://localhost:${config.port}`);
   console.log('Environment:', process.env.NODE_ENV);
   console.log('Allowed origins:', config.allowedOrigins);

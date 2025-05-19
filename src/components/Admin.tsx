@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 // Import API_URL from storage
 const API_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:3001/api'
+  ? 'http://localhost:3000/api'
   : 'https://quiz-app-backend-vpp3.onrender.com/api';
 
 const AdminContainer = styled.div`
@@ -92,7 +92,6 @@ const ErrorMessage = styled.div`
 
 interface Score {
   id: number;
-  user_id: number;
   total_score: number;
   category_scores: Record<string, { correct: number; total: number }>;
   timestamp: string;
@@ -113,12 +112,11 @@ const Admin: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch users only (not users-with-scores)
   const fetchUsers = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch(`${API_URL}/users`);
+      const response = await fetch(`${API_URL}/users-with-scores`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to fetch users');
@@ -172,7 +170,7 @@ const Admin: React.FC = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <Link to="/scores">
-          <ExportButton as="span">View Scores</ExportButton>
+          <ExportButton as="span">View All Scores</ExportButton>
         </Link>
       </SearchContainer>
       <Table>
@@ -181,21 +179,31 @@ const Admin: React.FC = () => {
             <th>Name</th>
             <th>Email</th>
             <th>Contact</th>
-            <th>Registered</th>
+            <th>Latest Score</th>
+            <th>Total Score</th>
           </tr>
         </thead>
         <tbody>
-          {filteredUsers.map((user, index) => (
-            <tr key={index}>
-              <td>{user.name}</td>
-              <td>{user.email}</td>
-              <td>{user.contact}</td>
-              <td>{new Date(user.timestamp).toLocaleString()}</td>
-            </tr>
-          ))}
+          {filteredUsers.map((user, index) => {
+            const latestScore = user.scores[0]; // Scores are ordered by timestamp DESC
+            const totalScore = user.scores.reduce((sum, score) => sum + score.total_score, 0);
+            return (
+              <tr key={index}>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.contact}</td>
+                <td>
+                  {latestScore ? `${latestScore.total_score}/5` : 'No attempts'}
+                </td>
+                <td>
+                  {latestScore ? totalScore : '-'}
+                </td>
+              </tr>
+            );
+          })}
           {filteredUsers.length === 0 && (
             <tr>
-              <td colSpan={4} style={{ textAlign: 'center', padding: '2rem' }}>
+              <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
                 {searchTerm ? 'No matching users found' : 'No users yet'}
               </td>
             </tr>
