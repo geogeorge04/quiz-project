@@ -14,7 +14,7 @@ export interface ScoreData {
 
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api'
-  : 'https://quiz-app-backend-vpp3.onrender.com/api';
+  : 'https://quiz-master-7kp8.onrender.com/api';
 
 export const saveUser = async (userData: Omit<UserData, 'timestamp'>): Promise<{ id: string } | false> => {
   try {

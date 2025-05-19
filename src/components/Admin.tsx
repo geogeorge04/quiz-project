@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 // Import API_URL from storage
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3000/api'
-  : 'https://quiz-app-backend-vpp3.onrender.com/api';
+  : 'https://quiz-master-7kp8.onrender.com/api';
 
 const AdminContainer = styled.div`
   padding: 2rem;
