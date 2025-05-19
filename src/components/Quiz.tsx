@@ -431,13 +431,15 @@ const Quiz: React.FC = () => {
               if (!saved) {
                 throw new Error('Failed to save score');
               }
-const scoreMessage = `${finalScore === 5 ? '🎉 Congratulations! You got a perfect score!\n\n' : ''}Final Score: ${finalScore}/5\n\nCategory Breakdown:\n${
-            Object.entries(finalCategoryScores)
-              .map(([category, scores]) => 
-                `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
-              )
-              .join('\n')
-          }${finalScore === 5 ? '\n\nYou have earned a certificate of completion! 🏆' : ''}`;
+
+              // Show final score with category breakdown
+              const scoreMessage = `${newScore === 5 ? '🎉 Congratulations! You got a perfect score!\n\n' : ''}Final Score: ${newScore}/5\n\nCategory Breakdown:\n${
+                Object.entries(finalCategoryScores)
+                  .map(([category, scores]) => 
+                    `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
+                  )
+                  .join('\n')
+              }${newScore === 5 ? '\n\nYou have earned a certificate of completion! 🏆' : ''}`;
               
               alert(scoreMessage);
               navigate('/scores');
