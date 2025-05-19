@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-import type { Question } from '../data/questions';
-import { questions } from '../data/questions';
 import { useNavigate } from 'react-router-dom';
+import { questions, Question } from '../data/questions';
 import { saveScore } from '../utils/storage';
 
 const QuizContainer = styled.div`
@@ -431,13 +430,12 @@ const Quiz: React.FC = () => {
               if (!saved) {
                 throw new Error('Failed to save score');
               }
-const scoreMessage = `${finalScore === 5 ? '🎉 Congratulations! You got a perfect score!\n\n' : ''}Final Score: ${finalScore}/5\n\nCategory Breakdown:\n${
-            Object.entries(finalCategoryScores)
-              .map(([category, scores]) => 
-                `${category}: ${scores.correct}/${scores.total} (${Math.round((scores.correct/scores.total)*100)}%)`
-              )
-              .join('\n')
-          }${finalScore === 5 ? '\n\nYou have earned a certificate of completion! 🏆' : ''}`;
+
+              const scoreMessage = `${newScore === 5 ? '🎉 Congratulations! You got a perfect score!\n\n' : ''}Final Score: ${newScore}/5\n\nCategory Breakdown:\n${
+                Object.entries(finalCategoryScores)
+                  .map(([category, scores]) => `${category}: ${scores.correct}/${scores.total}`)
+                  .join('\n')
+              }${newScore === 5 ? '\n\nYou have earned a certificate of completion! 🏆' : ''}`;
               
               alert(scoreMessage);
               navigate('/scores');
